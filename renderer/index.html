@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;" />
+  <title>Days Without RCE</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Filtros SVG globais (grunge / desgaste) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <!-- distorção SÓ da moldura preta (borda gasta), leve -->
+      <filter id="grunge">
+        <feTurbulence type="fractalNoise" baseFrequency="0.014 0.02" numOctaves="3" seed="7" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.4"/>
+      </filter>
+      <!-- respingos/manchas: turbulência recortada pela source -->
+      <filter id="rough">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n"/>
+        <feColorMatrix in="n" type="matrix"
+          values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.4 1.05"/>
+        <feComposite operator="in" in2="SourceGraphic"/>
+      </filter>
+      <!-- grão fino de filme (renderiza a própria turbulência) -->
+      <filter id="grain">
+        <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="2" seed="11" stitchTiles="stitch" result="n"/>
+        <feColorMatrix in="n" type="matrix"
+          values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .55 0"/>
+      </filter>
+      <!-- manchas de ferrugem grandes e irregulares -->
+      <filter id="rust">
+        <feTurbulence type="fractalNoise" baseFrequency="0.03 0.045" numOctaves="4" seed="21" result="n"/>
+        <feColorMatrix in="n" type="matrix"
+          values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.6 1.35"/>
+        <feComposite operator="in" in2="SourceGraphic"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <main class="stage">
+    <div class="sign" id="sign">
+      <!-- moldura preta gasta (única camada com distorção) -->
+      <div class="frame" aria-hidden="true"></div>
+      <!-- camadas de sujeira -->
+      <div class="rust" aria-hidden="true"></div>
+      <div class="wear" aria-hidden="true"></div>
+      <svg class="scratches" viewBox="0 0 760 620" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M60 40 L 190 150" /><path d="M700 70 L 610 210" />
+        <path d="M40 520 L 160 430" /><path d="M720 560 L 560 470" />
+        <path d="M120 300 L 300 360" /><path d="M480 90 L 690 130" />
+        <path d="M300 560 L 470 520" /><path d="M660 330 L 700 480" />
+        <path d="M90 200 L 130 205" /><path d="M540 540 L 600 548" />
+      </svg>
+      <div class="grain" aria-hidden="true"></div>
+      <!-- parafusos nos cantos -->
+      <span class="screw tl" aria-hidden="true"></span>
+      <span class="screw tr" aria-hidden="true"></span>
+      <span class="screw bl" aria-hidden="true"></span>
+      <span class="screw br" aria-hidden="true"></span>
+
+      <div class="sign-inner">
+        <!-- Painel LED -->
+        <section class="panel" id="panel">
+          <div class="panel-glass" aria-hidden="true"></div>
+          <div class="panel-sheen" aria-hidden="true"></div>
+          <div class="panel-dust" aria-hidden="true"></div>
+          <div class="digits" id="digits"></div>
+          <div class="live-clock" id="liveClock">00:00:00</div>
+          <div class="scanline" aria-hidden="true"></div>
+        </section>
+
+        <!-- Título grande estilo placa -->
+        <h1 class="headline">
+          <span class="l1" id="hlL1">DAYS WITHOUT AN</span>
+          <span class="l2" id="hlL2">R<span class="c">C</span>E</span>
+        </h1>
+
+        <!-- Recorde -->
+        <div class="record" id="record">
+          <span class="rec-label" id="recLabel">OUR RECORD</span>
+          <span class="rec-val"><b id="recordVal">0</b> <span id="recDays">DAYS</span></span>
+        </div>
+
+        <div class="tagline" id="tagline"></div>
+      </div>
+
+      <!-- Barra de ações -->
+      <div class="actions">
+        <button class="btn danger" id="btnIncident" title="Registrar um novo RCE (zera o contador)">
+          <span class="boom">💥</span> <span id="btnIncidentTxt">REGISTER RCE</span>
+        </button>
+        <button class="btn ghost" id="btnHistory" title="Histórico de incidentes">📜 <span id="btnHistoryTxt">HISTORY</span></button>
+        <button class="btn ghost" id="btnEdit" title="Editar valores">⚙️ <span id="btnEditTxt">ADJUST</span></button>
+        <button class="btn icon" id="btnMute" title="Ligar/desligar som">🔊</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Overlay de flash/sirene no incidente -->
+  <div class="incident-flash" id="flash" aria-hidden="true"></div>
+
+  <!-- Modal: registrar RCE -->
+  <div class="modal-backdrop" id="incidentModal" hidden>
+    <div class="modal">
+      <h2 id="imTitle">💥 New RCE</h2>
+      <p id="imDesc">This resets the counter. Note what happened (optional):</p>
+      <input type="text" id="incidentNote" maxlength="200" placeholder="CVE-2026-XXXX / service / component..." />
+      <div class="modal-actions">
+        <button class="btn ghost" id="incidentCancel">Cancel</button>
+        <button class="btn danger" id="incidentConfirm">Confirm RCE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: ajustar -->
+  <div class="modal-backdrop" id="editModal" hidden>
+    <div class="modal">
+      <h2 id="emTitle">⚙️ Adjust</h2>
+      <label id="emLangLabel">Language / Idioma
+        <div class="lang-toggle" role="group">
+          <button type="button" class="lang-opt" data-lang="en">🇬🇧 English</button>
+          <button type="button" class="lang-opt" data-lang="pt">🇧🇷 Português</button>
+        </div>
+      </label>
+      <label id="emDaysLabel">Days without an RCE (current)
+        <input type="number" id="editDays" min="0" step="1" />
+      </label>
+      <label id="emRecordLabel">Record (days)
+        <input type="number" id="editRecord" min="0" step="1" />
+      </label>
+      <div class="modal-actions">
+        <button class="btn ghost" id="editReveal" title="Open data file">📁 <span id="emData">Data</span></button>
+        <span class="spacer"></span>
+        <button class="btn ghost" id="editCancel">Cancel</button>
+        <button class="btn primary" id="editSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: histórico -->
+  <div class="modal-backdrop" id="historyModal" hidden>
+    <div class="modal wide">
+      <h2 id="hmTitle">📜 Incident history</h2>
+      <ul class="history-list" id="historyList"></ul>
+      <div class="modal-actions">
+        <button class="btn ghost danger-text" id="historyClear">Clear history</button>
+        <span class="spacer"></span>
+        <button class="btn primary" id="historyClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="segments.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

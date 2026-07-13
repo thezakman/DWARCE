@@ -1,0 +1,600 @@
+/* ================================================================ *
+ *  Days Without RCE — visual                                        *
+ *  Mix: placa de segurança amarela grunge + painel LED dot-matrix   *
+ * ================================================================ */
+
+:root {
+  --yellow: #f4b400;
+  --yellow-deep: #e09e00;
+  --ink: #171310;
+  --ink-soft: #2a231c;
+  --led-on: #ff2b21;
+  --led-on-2: #ff5a3c;
+  --led-off: #360a08;
+  --panel-bg: #0a0807;
+  --danger: #d61f1f;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  color: #fff;
+  -webkit-user-select: none;
+  user-select: none;
+  overflow: hidden;
+}
+
+body {
+  background:
+    radial-gradient(120% 90% at 50% 0%, #26262b 0%, #141416 55%, #0c0c0e 100%);
+}
+
+.stage {
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 26px;
+}
+
+/* ---------------- Placa amarela (moldura grunge) ---------------- */
+
+.sign {
+  position: relative;
+  width: min(760px, 92vw);
+  background:
+    radial-gradient(140% 120% at 30% 10%, #ffce46 0%, var(--yellow) 40%, var(--yellow-deep) 100%);
+  border-radius: 18px;
+  padding: 22px 24px 18px;
+  box-shadow:
+    0 34px 70px rgba(0,0,0,.6),
+    0 10px 22px rgba(0,0,0,.45),
+    inset 0 2px 0 rgba(255,255,255,.25),
+    inset 0 -8px 24px rgba(120,70,0,.35);
+  isolation: isolate;
+  animation: signSway 9s ease-in-out infinite;
+  transform-origin: 50% -40px;
+}
+
+/* leve balanço, como placa pendurada */
+@keyframes signSway {
+  0%,100% { transform: rotate(-0.25deg); }
+  50% { transform: rotate(0.25deg); }
+}
+
+/* ---- moldura preta gasta (única camada distorcida) ---- */
+.frame {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  pointer-events: none;
+  z-index: 5;
+  outline: 9px solid var(--ink);
+  outline-offset: -3px;
+  filter: url(#grunge);
+}
+.frame::before {
+  content: "";
+  position: absolute;
+  inset: 11px;
+  border: 4px solid var(--ink);
+  border-radius: 12px;
+  opacity: .9;
+}
+/* tinta descascando nos cantos (chips pretos) */
+.frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 0 0, var(--ink) 0 10px, transparent 11px),
+    radial-gradient(circle at 100% 0, var(--ink) 0 8px, transparent 9px),
+    radial-gradient(circle at 0 100%, var(--ink) 0 12px, transparent 13px),
+    radial-gradient(circle at 100% 100%, var(--ink) 0 9px, transparent 10px),
+    radial-gradient(circle at 22% 0, var(--ink) 0 3px, transparent 4px),
+    radial-gradient(circle at 74% 100%, var(--ink) 0 4px, transparent 5px);
+  opacity: .5;
+  filter: url(#grunge);
+}
+
+/* ---- manchas de ferrugem grandes ---- */
+.rust {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: multiply;
+  opacity: .32;
+  background:
+    radial-gradient(closest-side, #7a3b06 0%, #7a3b06 40%, transparent 70%) 8% 88% / 160px 120px no-repeat,
+    radial-gradient(closest-side, #6b3405 0%, #6b3405 35%, transparent 70%) 94% 14% / 130px 150px no-repeat,
+    radial-gradient(closest-side, #5c2c04 0%, transparent 70%) 50% 4% / 220px 60px no-repeat;
+}
+.rust::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: #5a2a03;
+  filter: url(#rust);
+  opacity: .5;
+}
+
+/* textura de desgaste: sombreado nos cantos */
+.wear {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  pointer-events: none;
+  z-index: 3;
+  mix-blend-mode: multiply;
+  opacity: .55;
+  background:
+    radial-gradient(65% 45% at 10% 6%, rgba(0,0,0,.4), transparent 60%),
+    radial-gradient(55% 45% at 93% 10%, rgba(0,0,0,.34), transparent 55%),
+    radial-gradient(75% 55% at 90% 97%, rgba(0,0,0,.4), transparent 60%),
+    radial-gradient(55% 45% at 5% 92%, rgba(0,0,0,.34), transparent 55%),
+    radial-gradient(120% 100% at 50% 120%, rgba(0,0,0,.28), transparent 55%);
+}
+/* respingos finos escuros */
+.wear::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  filter: url(#rough);
+  opacity: .16;
+  background: #000;
+}
+
+/* ---- arranhões ---- */
+.scratches {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
+  pointer-events: none;
+  opacity: .5;
+  mix-blend-mode: multiply;
+}
+.scratches path {
+  fill: none;
+  stroke: rgba(20,12,4,.55);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+
+/* ---- grão de filme (sutil, animado) ---- */
+.grain {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  z-index: 6;
+  pointer-events: none;
+  filter: url(#grain);
+  opacity: .09;
+  mix-blend-mode: overlay;
+  animation: grainShift .5s steps(2) infinite;
+}
+@keyframes grainShift {
+  0% { transform: translate(0,0); }
+  50% { transform: translate(-1%, 1%); }
+  100% { transform: translate(1%, -1%); }
+}
+
+/* ---- parafusos nos cantos ---- */
+.screw {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  z-index: 7;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%, #dfe2e6 0%, #9aa0a6 45%, #4c5157 100%);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.6),
+    inset 0 -2px 3px rgba(0,0,0,.6),
+    0 1px 2px rgba(0,0,0,.7);
+}
+.screw::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: linear-gradient(var(--sa, 55deg), transparent 44%, rgba(0,0,0,.55) 44% 56%, transparent 56%);
+}
+.screw.tl { top: 15px; left: 15px; --sa: 40deg; }
+.screw.tr { top: 15px; right: 15px; --sa: 125deg; }
+.screw.bl { bottom: 15px; left: 15px; --sa: 100deg; }
+.screw.br { bottom: 15px; right: 15px; --sa: 20deg; }
+
+.sign-inner {
+  position: relative;
+  z-index: 8;
+  padding: 8px 10px 4px;
+}
+
+/* ---------------- Painel LED ---------------- */
+
+.panel {
+  position: relative;
+  background:
+    linear-gradient(180deg, #131010 0%, var(--panel-bg) 60%, #050404 100%);
+  border-radius: 14px;
+  padding: 22px 26px 16px;
+  margin: 6px 4px 14px;
+  box-shadow:
+    inset 0 0 0 3px rgba(255,255,255,.9),   /* borda branca fina (Imagem 1) */
+    inset 0 0 0 6px #000,
+    inset 0 10px 40px rgba(0,0,0,.9),
+    0 6px 14px rgba(0,0,0,.5);
+  overflow: hidden;
+}
+
+/* brilho de vidro + scanlines sutis + vinheta */
+.panel-glass {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background:
+    radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(0,0,0,.55) 100%),
+    linear-gradient(180deg, rgba(255,255,255,.06), transparent 30%),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 2px, transparent 2px 4px);
+  mix-blend-mode: screen;
+  opacity: .55;
+}
+
+/* reflexo diagonal deslizando devagar sobre o vidro */
+.panel-sheen {
+  position: absolute;
+  top: -60%;
+  left: -30%;
+  width: 40%;
+  height: 220%;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,.07) 45%, rgba(255,255,255,.12) 50%, transparent 60%);
+  transform: rotate(8deg);
+  animation: sheen 11s ease-in-out infinite;
+}
+@keyframes sheen {
+  0%, 70% { transform: translateX(0) rotate(8deg); opacity: 0; }
+  78% { opacity: 1; }
+  100% { transform: translateX(560%) rotate(8deg); opacity: 0; }
+}
+
+/* poeira/pontos mortos no vidro do LED */
+.panel-dust {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: .5;
+  background:
+    radial-gradient(circle, rgba(255,255,255,.12) 0 1px, transparent 1.5px) 12% 30% / 90px 70px,
+    radial-gradient(circle, rgba(0,0,0,.5) 0 1px, transparent 2px) 60% 20% / 120px 90px,
+    radial-gradient(circle, rgba(255,255,255,.08) 0 1px, transparent 1.5px) 80% 75% / 70px 60px;
+}
+
+/* linha de varredura descendo ocasionalmente */
+.scanline {
+  position: absolute;
+  left: 0; right: 0;
+  top: 0;
+  height: 14px;
+  z-index: 5;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(255,90,50,.10), transparent);
+  animation: scan 6.5s linear infinite;
+}
+@keyframes scan {
+  0% { transform: translateY(-20px); opacity: 0; }
+  6% { opacity: 1; }
+  40% { opacity: 1; }
+  46%, 100% { transform: translateY(260px); opacity: 0; }
+}
+
+.digits {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  min-height: 148px;
+}
+
+.digit {
+  height: 150px;
+  width: auto;
+  aspect-ratio: 60 / 104;
+  flex: 0 0 auto;
+}
+
+.led {
+  fill: var(--led-off);
+  transition: fill .12s ease;
+}
+
+.digit g.on .led {
+  fill: var(--led-on);
+  filter:
+    drop-shadow(0 0 2px var(--led-on-2))
+    drop-shadow(0 0 6px rgba(255,43,33,.85));
+  animation: ledBreath 4.2s ease-in-out infinite;
+}
+/* respiração sutil do brilho (não pisca forte) */
+@keyframes ledBreath {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .9; }
+}
+
+/* flicker sutil no painel inteiro */
+@keyframes flicker {
+  0%, 92%, 100% { opacity: 1; }
+  93% { opacity: .8; }
+  94% { opacity: 1; }
+  96% { opacity: .88; }
+  97.5% { opacity: 1; }
+}
+.digits { animation: flicker 8s infinite steps(1); }
+
+.live-clock {
+  position: relative;
+  z-index: 6;
+  text-align: center;
+  margin-top: 8px;
+  font-family: "Courier New", monospace;
+  font-weight: 700;
+  letter-spacing: 3px;
+  font-size: 18px;
+  color: #ff7d33;
+  text-shadow: 0 0 6px rgba(255,90,40,.6);
+}
+
+/* ---------------- Tipografia da placa ---------------- */
+
+.headline {
+  margin: 4px 0 2px;
+  text-align: center;
+  color: var(--ink);
+  font-family: "Arial Narrow", "Oswald", Impact, sans-serif;
+  font-weight: 800;
+  line-height: .92;
+  text-transform: uppercase;
+}
+.headline .l1 {
+  display: block;
+  font-size: clamp(30px, 6.5vw, 52px);
+  letter-spacing: 1px;
+}
+.headline .l2 {
+  display: block;
+  font-size: clamp(52px, 12vw, 96px);
+  letter-spacing: 2px;
+  -webkit-text-stroke: 1px rgba(0,0,0,.15);
+}
+.headline .l2 .c { color: var(--danger); }
+
+.record {
+  margin: 12px auto 4px;
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--ink);
+  background: rgba(0,0,0,.08);
+  border: 3px solid var(--ink);
+  border-radius: 8px;
+  padding: 6px 18px;
+  transform: rotate(-1.2deg);
+}
+.rec-label {
+  font-family: "Arial Narrow", Impact, sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 4px;
+}
+.rec-val {
+  font-family: "Arial Narrow", Impact, sans-serif;
+  font-weight: 800;
+  font-size: 26px;
+  letter-spacing: 1px;
+}
+.rec-val b { font-size: 30px; }
+
+.tagline {
+  margin: 12px 4px 2px;
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-style: italic;
+  opacity: .85;
+}
+.tagline b { font-style: normal; }
+
+/* ---------------- Ações ---------------- */
+
+.actions {
+  position: relative;
+  z-index: 9;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-family: "Arial Narrow", Impact, sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 15px;
+  color: #fff;
+  background: #1b1b1e;
+  border: 2px solid #000;
+  border-radius: 9px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: transform .08s ease, filter .15s ease, background .15s ease;
+  box-shadow: 0 3px 0 rgba(0,0,0,.5);
+}
+.btn:hover { filter: brightness(1.18); }
+.btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.5); }
+
+.btn.danger {
+  background: linear-gradient(180deg, #e33 0%, var(--danger) 100%);
+  border-color: #6c0000;
+  font-size: 17px;
+  padding: 12px 22px;
+}
+.btn.danger .boom { filter: drop-shadow(0 0 3px rgba(255,200,0,.8)); }
+.btn.primary { background: linear-gradient(180deg, #2b8a3e, #1f6e30); border-color:#0c3d18; }
+.btn.ghost { background: #23231f; color: #f4d47a; }
+.btn.icon { font-size: 18px; padding: 10px 12px; }
+.btn.danger-text { color: #ff6b6b; }
+
+/* ---------------- Modais ---------------- */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.62);
+  backdrop-filter: blur(3px);
+  display: grid;
+  place-items: center;
+  z-index: 50;
+}
+.modal-backdrop[hidden] { display: none; }
+
+.modal {
+  width: min(460px, 92vw);
+  background: #1c1c20;
+  border: 1px solid #333;
+  border-radius: 14px;
+  padding: 22px 24px;
+  box-shadow: 0 30px 70px rgba(0,0,0,.6);
+  animation: pop .16s ease;
+}
+.modal.wide { width: min(560px, 94vw); }
+@keyframes pop { from { transform: scale(.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.modal h2 { margin: 0 0 8px; font-size: 22px; }
+.modal p { margin: 0 0 14px; color: #bdbdc4; font-size: 14px; }
+.modal label {
+  display: block;
+  margin: 12px 0;
+  font-size: 13px;
+  color: #cfcfd6;
+}
+.modal input {
+  width: 100%;
+  margin-top: 6px;
+  padding: 11px 12px;
+  border-radius: 8px;
+  border: 1px solid #3a3a42;
+  background: #101013;
+  color: #fff;
+  font-size: 15px;
+}
+.modal input:focus { outline: 2px solid #f4b400; border-color: transparent; }
+
+.lang-toggle {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.lang-opt {
+  flex: 1;
+  padding: 10px 8px;
+  border-radius: 8px;
+  border: 1px solid #3a3a42;
+  background: #101013;
+  color: #cfcfd6;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.lang-opt:hover { border-color: #6a6a72; }
+.lang-opt.active {
+  background: #f4b400;
+  border-color: #f4b400;
+  color: #171310;
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+.spacer { flex: 1; }
+
+.history-list {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  max-height: 46vh;
+  overflow-y: auto;
+}
+.history-list li {
+  padding: 10px 12px;
+  border-bottom: 1px solid #2b2b31;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.history-list .h-top { display: flex; justify-content: space-between; gap: 10px; }
+.history-list .h-streak { color: #ff8a5a; font-weight: 700; }
+.history-list .h-date { color: #8b8b95; font-size: 12px; }
+.history-list .h-note { color: #d8d8de; }
+.history-list .empty { color: #77777f; text-align: center; padding: 24px; }
+
+/* ---------------- Flash de incidente ---------------- */
+
+.incident-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 40%, rgba(255,40,20,.0), rgba(120,0,0,.0));
+  opacity: 0;
+  z-index: 40;
+}
+.incident-flash.boom {
+  animation: siren 1.05s ease-out;
+}
+@keyframes siren {
+  0%   { opacity: 0; background: radial-gradient(circle at 50% 40%, rgba(255,60,30,.85), rgba(120,0,0,.6)); }
+  18%  { opacity: 1; }
+  40%  { opacity: .25; }
+  60%  { opacity: .9; }
+  100% { opacity: 0; }
+}
+
+/* shake da placa no incidente */
+@keyframes shake {
+  0%,100% { transform: translate(0,0) rotate(0); }
+  15% { transform: translate(-9px, 3px) rotate(-1deg); }
+  30% { transform: translate(8px, -4px) rotate(1.1deg); }
+  45% { transform: translate(-7px, 4px) rotate(-.8deg); }
+  60% { transform: translate(6px, -3px) rotate(.7deg); }
+  75% { transform: translate(-4px, 2px) rotate(-.4deg); }
+}
+.sign.shake { animation: shake .55s ease; }
+
+/* pulso vermelho no painel quando zera */
+.panel.alarm { animation: panelAlarm 1s ease; }
+@keyframes panelAlarm {
+  0%,100% { box-shadow: inset 0 0 0 3px rgba(255,255,255,.9), inset 0 0 0 6px #000, inset 0 10px 40px rgba(0,0,0,.9), 0 6px 14px rgba(0,0,0,.5); }
+  30%,70% { box-shadow: inset 0 0 0 3px rgba(255,60,40,.95), inset 0 0 0 6px #400, inset 0 0 60px rgba(255,20,10,.5), 0 0 40px rgba(255,30,10,.6); }
+}
