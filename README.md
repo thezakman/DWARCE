@@ -87,9 +87,25 @@ Already installed once? Just `npm start`.
 - 🏆 **Log** — every hit you registered (date/time + the streak it broke + note), per topic.
 - ⚙️ **Adjust** — seed/fix the values by hand and **switch language EN ↔ PT-BR**.
 - 🔊 Toggleable sound (WebAudio, no asset files).
+- 🏆 **Achievements** — 13 unlockable trophies across all focuses: celebratory (`Killing Spree`,
+  `Dragon Slayer`, `Centurion`, `Polyglot`…) and self-deprecating (`Star Magnet` — catch 5 shooting
+  stars in one week, RIP 💀). Open with the trophy icon.
 - 🎨 Handcrafted visuals: dark carbon/circuit substrate, yellow hazard frame with hex bolts,
   true LED dot-matrix panel (digits are lit cells of the same grid), HUD tech-text, chrome and
   glossy-red 3D lettering, and a responsive layout that scales to fit any window size.
+
+## 🥚 Easter eggs
+
+There are **4 hidden easter eggs**. Go find them — one is older than you'd think.
+
+<details><summary>Spoilers</summary>
+
+- `↑ ↑ ↓ ↓ ← → ← → B A` — you know what this does.
+- Click the LED panel **7 times** fast.
+- Type `party`.
+- Click the `0xDEADBEEF` text on the display.
+
+</details>
 
 ## Persistence
 

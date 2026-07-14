@@ -108,6 +108,28 @@ function topicStats(s) {
   return out;
 }
 
+// Agrega o histórico de TODOS os focos p/ avaliar achievements.
+function computeStats(s, now = Date.now()) {
+  const WEEK = 7 * DAY_MS;
+  let total = 0, last24h = 0, last7d = 0, maxStreakBroken = 0;
+  const byTopic = {}, last7dByTopic = {}, distinct = new Set();
+  for (const id of Object.keys(s.topics)) {
+    const h = s.topics[id].history || [];
+    if (h.length) distinct.add(id);
+    byTopic[id] = h.length;
+    total += h.length;
+    for (const e of h) {
+      const t = Date.parse(e && e.date);
+      if (!isNaN(t)) {
+        if (now - t <= DAY_MS) last24h++;
+        if (now - t <= WEEK) { last7d++; last7dByTopic[id] = (last7dByTopic[id] || 0) + 1; }
+      }
+      if (typeof e.streakDays === 'number' && e.streakDays > maxStreakBroken) maxStreakBroken = e.streakDays;
+    }
+  }
+  return { total, last24h, last7d, byTopic, last7dByTopic, distinct: distinct.size, maxStreakBroken };
+}
+
 // Projeção enviada ao renderer: board ativo + metadados de tópicos.
 function project(s) {
   const b = activeBoard(s);
@@ -119,6 +141,7 @@ function project(s) {
     days: daysBetween(b.incidentDate),
     customTopics: s.customTopics,
     topicStats: topicStats(s),
+    stats: computeStats(s),
   };
 }
 
@@ -231,5 +254,5 @@ module.exports = {
   get, setTopic, registerIncident, edit, clearHistory,
   addTopic, updateTopic, deleteTopic,
   // exportados p/ teste
-  migrate, sanitizeState, defaultState,
+  migrate, sanitizeState, defaultState, computeStats,
 };

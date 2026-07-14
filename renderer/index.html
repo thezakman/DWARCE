@@ -139,6 +139,13 @@
             <polyline points="12 7.5 12 12 15.2 13.8"/>
           </svg>
         </button>
+        <button class="icon-btn" id="btnAchv" aria-label="Achievements" title="Achievements">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/>
+            <path d="M7 6H4.5v1A3 3 0 0 0 7.5 10"/><path d="M17 6h2.5v1A3 3 0 0 1 16.5 10"/>
+            <path d="M9.5 17h5l.5 3h-6z"/><line x1="12" y1="14" x2="12" y2="17"/>
+          </svg>
+        </button>
         <button class="icon-btn" id="btnEdit" aria-label="Adjust" title="Adjust">
           <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <line x1="4" y1="8" x2="20" y2="8"/><circle cx="9" cy="8" r="2.4"/>
@@ -154,6 +161,9 @@
   <!-- Overlay de comemoração + confete -->
   <div class="incident-flash" id="flash" aria-hidden="true"></div>
   <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+  <!-- toasts (achievements / easter eggs) -->
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
 
   <!-- Modal: comemorar RCE -->
   <div class="modal-backdrop" id="incidentModal" hidden>
@@ -245,6 +255,19 @@
     </div>
   </div>
 
+  <!-- Modal: achievements -->
+  <div class="modal-backdrop" id="achvModal" hidden>
+    <div class="modal wide">
+      <h2><svg class="h2-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4.5v1A3 3 0 0 0 7.5 10"/><path d="M17 6h2.5v1A3 3 0 0 1 16.5 10"/><path d="M9.5 17h5l.5 3h-6z"/><line x1="12" y1="14" x2="12" y2="17"/></svg><span id="amTitle">Achievements</span></h2>
+      <p class="modal-sub" id="amSub">0 / 0</p>
+      <div class="achv-grid" id="achvGrid"></div>
+      <div class="modal-actions">
+        <span class="spacer"></span>
+        <button class="btn primary" id="achvClose">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: histórico -->
   <div class="modal-backdrop" id="historyModal" hidden>
     <div class="modal wide">
@@ -260,6 +283,7 @@
 
   <script src="segments.js"></script>
   <script src="topics.js"></script>
+  <script src="achievements.js"></script>
   <script src="renderer.js"></script>
 </body>
 </html>

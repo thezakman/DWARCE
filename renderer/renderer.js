@@ -18,6 +18,7 @@ const el = {
   btnHistory: $('btnHistory'),
   btnEdit: $('btnEdit'),
   btnTopics: $('btnTopics'),
+  btnAchv: $('btnAchv'),
   btnMute: $('btnMute'),
   topicChip: $('topicChip'),
   tcEmoji: $('tcEmoji'),
@@ -40,6 +41,8 @@ const I18N = {
   en: {
     locale: 'en-US',
     btnHistory: 'History', btnEdit: 'Adjust', btnTopics: 'Topics', sound: 'Sound',
+    btnAchv: 'Achievements', amTitle: 'Achievements', amUnlocked: 'unlocked',
+    toastAchv: 'Achievement unlocked', secretName: '???', secretDesc: 'Secret — go find it.',
     imCancel: 'Cancel',
     emTitle: 'Adjust', emLang: 'Language / Idioma',
     emDays: 'Current days (dry spell)', emRecord: 'Record (days)',
@@ -57,6 +60,8 @@ const I18N = {
   pt: {
     locale: 'pt-BR',
     btnHistory: 'Histórico', btnEdit: 'Ajustar', btnTopics: 'Focos', sound: 'Som',
+    btnAchv: 'Conquistas', amTitle: 'Conquistas', amUnlocked: 'desbloqueadas',
+    toastAchv: 'Conquista desbloqueada', secretName: '???', secretDesc: 'Secreta — vá descobrir.',
     imCancel: 'Cancelar',
     emTitle: 'Ajustar', emLang: 'Idioma / Language',
     emDays: 'Dias atuais (seca)', emRecord: 'Recorde (dias)',
@@ -123,8 +128,11 @@ function applyLang() {
   // ícones/tooltips
   setTitle('btnTopics', d.btnTopics);
   setTitle('btnHistory', d.btnHistory);
+  setTitle('btnAchv', d.btnAchv);
   setTitle('btnEdit', d.btnEdit);
   setTitle('btnMute', d.sound);
+  setText('amTitle', d.amTitle);
+  setText('achvClose', d.hmClose);
   // modal incidente (cancel genérico)
   setText('incidentCancel', d.imCancel);
   // modal ajustar
@@ -341,6 +349,7 @@ function wireIncidentModal() {
     applyState(s);
     tick();
     playWinFX(pol);
+    syncAchievements(false); // toasta conquistas novas
   });
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') $('incidentConfirm').click();
@@ -562,6 +571,176 @@ document.querySelectorAll('.modal-backdrop').forEach((bd) => {
   bd.addEventListener('click', (e) => { if (e.target === bd) bd.hidden = true; });
 });
 
+/* ---------------- toasts ---------------- */
+
+function toast(html, cls) {
+  const stack = $('toastStack');
+  if (!stack) return;
+  const el2 = document.createElement('div');
+  el2.className = 'toast' + (cls ? ' ' + cls : '');
+  el2.innerHTML = html;
+  stack.appendChild(el2);
+  requestAnimationFrame(() => el2.classList.add('show'));
+  setTimeout(() => { el2.classList.remove('show'); setTimeout(() => el2.remove(), 400); }, 4200);
+}
+
+/* ---------------- achievements ---------------- */
+
+function getEarned() { try { return JSON.parse(localStorage.getItem('rce.earned') || '[]'); } catch (_) { return []; } }
+function saveEarned(a) { localStorage.setItem('rce.earned', JSON.stringify(a)); }
+
+function achvSound() {
+  [659.25, 783.99, 987.77, 1318.5].forEach((f, i) => beep(f, i * 0.09, 0.19, 'triangle', 0.11));
+}
+
+function toastAchievement(a) {
+  if (!a) return;
+  const loc = a[lang] || a.en;
+  toast(`<span class="toast-emoji">${a.emoji}</span><span class="toast-txt"><b>${t().toastAchv}</b><span>${loc.t}</span></span>`, 'achv');
+  achvSound();
+}
+
+// avalia conquistas; salva as novas; toasta se !silent. Retorna novas.
+function syncAchievements(silent) {
+  const earned = new Set(getEarned());
+  const unlocked = window.ACHV.evaluate(state.stats);
+  const fresh = unlocked.filter((id) => !earned.has(id));
+  if (fresh.length) { fresh.forEach((id) => earned.add(id)); saveEarned([...earned]); }
+  if (!silent) fresh.forEach((id) => toastAchievement(window.ACHV.byId(id)));
+  return fresh;
+}
+
+// destrava manualmente (easter egg secreto)
+function earnAchievement(id) {
+  const earned = new Set(getEarned());
+  if (earned.has(id)) return false;
+  earned.add(id); saveEarned([...earned]);
+  toastAchievement(window.ACHV.byId(id));
+  return true;
+}
+
+function renderAchievements() {
+  const grid = $('achvGrid');
+  grid.innerHTML = '';
+  const earned = new Set(getEarned());
+  const list = window.ACHV.ACHIEVEMENTS;
+  let count = 0;
+  for (const a of list) {
+    const got = earned.has(a.id);
+    if (got) count++;
+    const loc = a[lang] || a.en;
+    const hidden = a.secret && !got;
+    const card = document.createElement('div');
+    card.className = 'achv-card ' + (got ? 'got' : 'locked') + (hidden ? ' secret' : '');
+    const em = document.createElement('span'); em.className = 'achv-emoji'; em.textContent = hidden ? '❓' : a.emoji;
+    const ti = document.createElement('span'); ti.className = 'achv-t'; ti.textContent = hidden ? t().secretName : loc.t;
+    const de = document.createElement('span'); de.className = 'achv-d'; de.textContent = hidden ? t().secretDesc : loc.d;
+    card.append(em, ti, de);
+    grid.appendChild(card);
+  }
+  $('amSub').textContent = `${count} / ${list.length} ${t().amUnlocked}`;
+}
+
+function wireAchvModal() {
+  el.btnAchv.addEventListener('click', () => { renderAchievements(); openModal('achvModal'); });
+  $('achvClose').addEventListener('click', () => closeModal('achvModal'));
+}
+
+/* ---------------- easter eggs (4) ---------------- */
+
+function glitchSound() { for (let i = 0; i < 6; i++) beep(200 + Math.random() * 800, i * 0.05, 0.06, 'square', 0.06); }
+
+// 1) Konami → GOD MODE (LED arco-íris + confete + conquista secreta)
+function godMode() {
+  document.body.classList.add('godmode');
+  burstConfetti(120);
+  winSound();
+  earnAchievement('konami');
+  toast('<span class="toast-emoji">🕹️</span><span class="toast-txt"><b>GOD MODE</b><span>↑↑↓↓←→←→ B A</span></span>', 'god');
+  setTimeout(() => document.body.classList.remove('godmode'), 6000);
+}
+
+// 2) 7 cliques no painel LED → glitch → "1337"
+function glitch1337() {
+  const m = el.matrix; let ticks = 0;
+  el.panel.classList.add('glitch');
+  glitchSound();
+  const iv = setInterval(() => {
+    window.LED.renderDisplay(m, Math.floor(Math.random() * 9999));
+    if (++ticks > 12) {
+      clearInterval(iv);
+      window.LED.renderDisplay(m, 1337);
+      lastDays = -1; // volta pro valor real no próximo tick
+      toast('<span class="toast-emoji">🧑‍💻</span><span class="toast-txt"><b>h4ck th3 pl4n3t</b><span>1337</span></span>', 'glitch');
+      setTimeout(() => el.panel.classList.remove('glitch'), 900);
+    }
+  }, 70);
+}
+
+// 3) digitar "party" → modo festa
+function partyMode() {
+  burstConfetti(100);
+  winSound();
+  toast('<span class="toast-emoji">🎉</span><span class="toast-txt"><b>PARTY MODE</b><span>🥳🎊🎉</span></span>', 'party');
+}
+
+// 4) clicar no tech-text "0xDEADBEEF" → fortune hacker aleatória
+const FORTUNES = {
+  en: [
+    "There is no cloud — just someone else's computer.",
+    "It's not a bug, it's an undocumented feature.",
+    "sudo make me a sandwich.",
+    "The only secure system is one that's powered off.",
+    "chmod 777 and pray. 🙏",
+    "It works on my machine. 🤷",
+    "rm -rf / ... just kidding. (unless?)",
+  ],
+  pt: [
+    'Não existe nuvem — é só o computador de outra pessoa.',
+    'Não é bug, é feature não documentada.',
+    'sudo me faz um sanduíche.',
+    'O único sistema seguro é o desligado.',
+    'chmod 777 e reza. 🙏',
+    'Na minha máquina funciona. 🤷',
+    'rm -rf / ... brincadeira. (será?)',
+  ],
+};
+function fortune() {
+  const list = FORTUNES[lang] || FORTUNES.en;
+  const f = list[Math.floor(Math.random() * list.length)];
+  toast(`<span class="toast-emoji">🔮</span><span class="toast-txt"><b>0xDEADBEEF</b><span>${f}</span></span>`, 'fortune');
+}
+
+function initEasterEggs() {
+  const KONAMI = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
+  let kpos = 0, typeBuf = '';
+  window.addEventListener('keydown', (e) => {
+    const k = e.key.length === 1 ? e.key.toLowerCase() : e.key.toLowerCase();
+    kpos = (k === KONAMI[kpos]) ? kpos + 1 : (k === KONAMI[0] ? 1 : 0);
+    if (kpos === KONAMI.length) { kpos = 0; godMode(); }
+    if (/^[a-z]$/.test(k)) {
+      typeBuf = (typeBuf + k).slice(-6);
+      if (typeBuf.endsWith('party')) { typeBuf = ''; partyMode(); }
+    }
+  });
+
+  // 7 cliques no painel
+  let clicks = 0, ct = null;
+  el.panel.addEventListener('click', () => {
+    clicks++;
+    clearTimeout(ct);
+    ct = setTimeout(() => { clicks = 0; }, 1600);
+    if (clicks >= 7) { clicks = 0; glitch1337(); }
+  });
+
+  // clique no 0xDEADBEEF
+  const tech = document.querySelector('.tech-tr');
+  if (tech) {
+    tech.classList.add('egg');
+    tech.addEventListener('click', (e) => { e.stopPropagation(); fortune(); });
+  }
+}
+
 /* ---------------- responsivo: escala pra caber ---------------- */
 
 // Mede a largura real de um texto no font atual do elemento (independe de
@@ -637,10 +816,13 @@ async function boot() {
   wireEditModal();
   wireHistoryModal();
   wireTopicsModal();
+  wireAchvModal();
+  initEasterEggs();
 
   const s = await window.rce.get();
   applyState(s);
   applyLang();
+  syncAchievements(true); // destrava retroativo (sem spam de toasts no boot)
 
   fitToWindow();
   window.addEventListener('resize', fitToWindow);

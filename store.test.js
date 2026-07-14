@@ -135,6 +135,22 @@ test('sanitiza board corrompido (data inválida, recorde negativo)', () => {
   assert.deepStrictEqual(s.history, []);
 });
 
+test('computeStats agrega o histórico de todos os focos', () => {
+  const p = tmpFile();
+  store.init(p);
+  store.registerIncident('a');
+  store.registerIncident('b');
+  store.setTopic('domain');
+  store.registerIncident('c');
+  const s = store.computeStats(store.readState());
+  assert.strictEqual(s.total, 3);
+  assert.strictEqual(s.byTopic.rce, 2);
+  assert.strictEqual(s.byTopic.domain, 1);
+  assert.strictEqual(s.distinct, 2);
+  assert.strictEqual(s.last24h, 3, 'incidentes recém-criados contam em 24h');
+  assert.strictEqual(s.last7d, 3);
+});
+
 test('clearHistory limpa só o histórico do ativo', () => {
   const p = tmpFile();
   store.init(p);

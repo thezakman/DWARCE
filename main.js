@@ -72,6 +72,9 @@ function createWindow() {
         setTimeout(() => win.webContents.executeJavaScript(
           `document.getElementById('${process.env.RCE_OPEN}').click();`), 500);
       }
+      if (process.env.RCE_EVAL) {
+        setTimeout(() => win.webContents.executeJavaScript(process.env.RCE_EVAL), 600);
+      }
       if (process.env.RCE_CLICK) {
         setTimeout(() => win.webContents.executeJavaScript(
           `document.getElementById('btnIncident').click();`
