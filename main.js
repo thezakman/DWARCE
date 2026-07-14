@@ -39,6 +39,7 @@ function createWindow() {
     minHeight: 340,
     backgroundColor: '#111112',
     title: 'Days Without RCE',
+    icon: path.join(__dirname, 'assets', 'icon.png'),
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),

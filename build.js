@@ -5,6 +5,7 @@
 // Requer `tar` e `xz` no PATH (macOS/Linux). Uso: npm run dist
 
 const { packager } = require('@electron/packager');
+const ResEdit = require('resedit');
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -23,7 +24,18 @@ const targets = [
 const ignore = [
   /^\/dist($|\/)/, /^\/build\.js$/, /^\/store\.test\.js$/,
   /^\/\.git($|\/)/, /^\/\.gitignore$/, /^\/scratchpad($|\/)/, /^\/\.DS_Store$/,
+  // assets de README/fonte de ícone não precisam no bundle (só assets/icon.png em runtime)
+  /^\/assets\/(ops|preview-en|preview-pt)\.png$/,
+  /^\/assets\/icon\.(svg|icns|ico)$/,
+  /^\/README\.md$/, /^\/package-lock\.json$/,
 ];
+
+// ícone por plataforma (packager escolhe .icns no mac e .ico no win; linux via BrowserWindow)
+const iconFor = {
+  darwin: path.join(__dirname, 'assets', 'icon.icns'),
+  win32: path.join(__dirname, 'assets', 'icon.ico'),
+  linux: path.join(__dirname, 'assets', 'icon.png'),
+};
 
 // remove locales .pak (linux/win) e *.lproj (mac) fora do KEEP
 function pruneLocales(dir) {
@@ -45,6 +57,19 @@ function pruneLocales(dir) {
   walk(dir);
 }
 
+// seta o ícone do .exe do Windows (packager precisaria de Wine; resedit faz em JS puro)
+function setWindowsIcon(appDir) {
+  const exePath = path.join(appDir, 'DWARCE.exe');
+  const exe = ResEdit.NtExecutable.from(fs.readFileSync(exePath));
+  const res = ResEdit.NtExecutableResource.from(exe);
+  const ico = ResEdit.Data.IconFile.from(fs.readFileSync(path.join(__dirname, 'assets', 'icon.ico')));
+  ResEdit.Resource.IconGroupEntry.replaceIconsForResource(
+    res.entries, 1, 1033, ico.icons.map((i) => i.data),
+  );
+  res.outputResource(exe);
+  fs.writeFileSync(exePath, Buffer.from(exe.generate()));
+}
+
 (async () => {
   for (const t of targets) {
     console.log(`\n==> packing ${t.label}`);
@@ -52,8 +77,10 @@ function pruneLocales(dir) {
       dir: __dirname, name: 'DWARCE',
       platform: t.platform, arch: t.arch,
       out: OUT, overwrite: true, prune: true, ignore,
+      icon: iconFor[t.platform],
     });
     pruneLocales(appDir);
+    if (t.platform === 'win32') setWindowsIcon(appDir);
     const base = path.basename(appDir);
     const out = `DWARCE-${VER}-${t.label}.tar.xz`;
     execFileSync('/bin/bash', ['-c', `tar -cf - ${JSON.stringify(base)} | xz -9 -T0 -c > ${JSON.stringify(out)}`], { cwd: OUT, stdio: 'inherit' });

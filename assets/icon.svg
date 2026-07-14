@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="34%" r="80%">
+      <stop offset="0%" stop-color="#20242b"/><stop offset="55%" stop-color="#14161b"/><stop offset="100%" stop-color="#090a0c"/>
+    </radialGradient>
+    <linearGradient id="frame" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffd34d"/><stop offset="50%" stop-color="#f5b301"/><stop offset="100%" stop-color="#b98200"/>
+    </linearGradient>
+    <radialGradient id="led" cx="40%" cy="36%" r="70%">
+      <stop offset="0%" stop-color="#ffe9cf"/><stop offset="30%" stop-color="#ff7a45"/><stop offset="72%" stop-color="#f2261a"/><stop offset="100%" stop-color="#b41109"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff3a1e" stop-opacity="0.55"/><stop offset="60%" stop-color="#ff2a12" stop-opacity="0.14"/><stop offset="100%" stop-color="#ff2a12" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- fundo escuro arredondado -->
+  <rect x="0" y="0" width="1024" height="1024" rx="180" fill="url(#bg)"/>
+  <!-- moldura hazard amarela -->
+  <rect x="48" y="48" width="928" height="928" rx="132"
+        fill="none" stroke="url(#frame)" stroke-width="46"/>
+  <rect x="78" y="78" width="868" height="868" rx="102"
+        fill="none" stroke="#000" stroke-width="6" opacity="0.55"/>
+  <!-- listras hazard nos cantos sup-esq / inf-dir -->
+  <g opacity="0.9">
+    <clipPath id="tl"><rect x="48" y="48" width="150" height="46" rx="8"/></clipPath>
+    <clipPath id="br"><rect x="826" y="930" width="150" height="46" rx="8"/></clipPath>
+  </g>
+
+  <!-- glow vermelho atrás do número -->
+  <ellipse cx="512" cy="520.0" rx="320" ry="472" fill="url(#glow)"/>
+
+  <!-- LEDs apagados (textura) + acesos (o "0") -->
+  <g><circle cx="427.7" cy="267.2" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="512.0" cy="267.2" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="596.3" cy="267.2" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="427.7" cy="351.5" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="512.0" cy="351.5" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="596.3" cy="351.5" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="427.7" cy="435.7" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="512.0" cy="435.7" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="596.3" cy="435.7" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="427.7" cy="520.0" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="512.0" cy="520.0" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="596.3" cy="520.0" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="427.7" cy="604.3" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="512.0" cy="604.3" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="596.3" cy="604.3" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="427.7" cy="688.5" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="512.0" cy="688.5" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="596.3" cy="688.5" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="427.7" cy="772.8" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="512.0" cy="772.8" r="12.6" fill="#4a130e" opacity="0.55"/><circle cx="596.3" cy="772.8" r="12.6" fill="#4a130e" opacity="0.55"/></g>
+  <g><circle cx="343.5" cy="183.0" r="28.6" fill="url(#led)"/><circle cx="427.7" cy="183.0" r="28.6" fill="url(#led)"/><circle cx="512.0" cy="183.0" r="28.6" fill="url(#led)"/><circle cx="596.3" cy="183.0" r="28.6" fill="url(#led)"/><circle cx="680.5" cy="183.0" r="28.6" fill="url(#led)"/><circle cx="343.5" cy="267.2" r="28.6" fill="url(#led)"/><circle cx="680.5" cy="267.2" r="28.6" fill="url(#led)"/><circle cx="343.5" cy="351.5" r="28.6" fill="url(#led)"/><circle cx="680.5" cy="351.5" r="28.6" fill="url(#led)"/><circle cx="343.5" cy="435.7" r="28.6" fill="url(#led)"/><circle cx="680.5" cy="435.7" r="28.6" fill="url(#led)"/><circle cx="343.5" cy="520.0" r="28.6" fill="url(#led)"/><circle cx="680.5" cy="520.0" r="28.6" fill="url(#led)"/><circle cx="343.5" cy="604.3" r="28.6" fill="url(#led)"/><circle cx="680.5" cy="604.3" r="28.6" fill="url(#led)"/><circle cx="343.5" cy="688.5" r="28.6" fill="url(#led)"/><circle cx="680.5" cy="688.5" r="28.6" fill="url(#led)"/><circle cx="343.5" cy="772.8" r="28.6" fill="url(#led)"/><circle cx="680.5" cy="772.8" r="28.6" fill="url(#led)"/><circle cx="343.5" cy="857.0" r="28.6" fill="url(#led)"/><circle cx="427.7" cy="857.0" r="28.6" fill="url(#led)"/><circle cx="512.0" cy="857.0" r="28.6" fill="url(#led)"/><circle cx="596.3" cy="857.0" r="28.6" fill="url(#led)"/><circle cx="680.5" cy="857.0" r="28.6" fill="url(#led)"/></g>
+</svg>
