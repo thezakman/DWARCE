@@ -2,3 +2,9 @@ node_modules/
 dist/
 *.log
 .DS_Store
+
+# Estado local do app (fica no userData, fora do repo por padrão).
+# Ignorado por segurança caso apareça uma cópia dentro do projeto — não vazar dados.
+rce-board.json
+rce-board.json.tmp
+*.tmp
