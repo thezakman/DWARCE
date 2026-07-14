@@ -1,14 +1,17 @@
 {
   "name": "days-without-rce",
   "version": "1.0.0",
-  "description": "Placa de segurança industrial que conta os dias sem RCE (Remote Code Execution).",
+  "description": "Industrial-style safety sign that counts the days without an RCE — with switchable hacking/pentest topics.",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "test": "node --test store.test.js",
+    "dist": "node build.js"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@electron/packager": "^20.0.2",
     "electron": "^32.0.0"
   }
 }

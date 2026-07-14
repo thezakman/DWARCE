@@ -92,10 +92,17 @@
           <div class="scanline" aria-hidden="true"></div>
         </section>
 
+        <!-- Chip do foco atual (clicável → abre o picker) -->
+        <button class="topic-chip" id="topicChip" title="Switch focus">
+          <span class="tc-emoji" id="tcEmoji">💥</span>
+          <span class="tc-name" id="tcName">RCE</span>
+          <svg class="tc-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+
         <!-- Título grande estilo placa -->
         <h1 class="headline">
           <span class="l1"><span id="hlL1">DAYS WITHOUT</span><span class="an-inline" id="hlAnInline"> AN</span></span>
-          <span class="l2"><span class="an an-stacked" id="hlAnStacked">AN</span><span class="rce">RCE</span></span>
+          <span class="l2"><span class="an an-stacked" id="hlAnStacked">AN</span><span class="rce" id="hlSubject">RCE</span></span>
         </h1>
 
         <!-- "Recorde" invertido = maior seca (vergonha) -->
@@ -118,6 +125,13 @@
 
       <!-- ações secundárias: ícones flat-line discretos -->
       <div class="tools">
+        <button class="icon-btn" id="btnTopics" aria-label="Topics" title="Topics">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 3 21 8 12 13 3 8 12 3"/>
+            <polyline points="3 12 12 17 21 12"/>
+            <polyline points="3 16 12 21 21 16"/>
+          </svg>
+        </button>
         <button class="icon-btn" id="btnHistory" aria-label="History" title="History">
           <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3.5 9.5A9 9 0 1 1 3.2 13.4"/>
@@ -157,7 +171,7 @@
   <!-- Modal: ajustar -->
   <div class="modal-backdrop" id="editModal" hidden>
     <div class="modal">
-      <h2 id="emTitle">⚙️ Adjust</h2>
+      <h2><svg class="h2-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="8" x2="20" y2="8"/><circle cx="9" cy="8" r="2.4"/><line x1="4" y1="16" x2="20" y2="16"/><circle cx="15" cy="16" r="2.4"/></svg><span id="emTitle">Adjust</span></h2>
       <label id="emLangLabel">Language / Idioma
         <div class="lang-toggle" role="group">
           <button type="button" class="lang-opt" data-lang="en">🇬🇧 English</button>
@@ -171,7 +185,7 @@
         <input type="number" id="editRecord" min="0" step="1" />
       </label>
       <div class="modal-actions">
-        <button class="btn ghost" id="editReveal" title="Open data file">📁 <span id="emData">Data</span></button>
+        <button class="btn ghost icon-only" id="editReveal" title="Data" aria-label="Data"><svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h3.5l2 2H19a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></button>
         <span class="spacer"></span>
         <button class="btn ghost" id="editCancel">Cancel</button>
         <button class="btn primary" id="editSave">Save</button>
@@ -179,10 +193,62 @@
     </div>
   </div>
 
+  <!-- Modal: picker de tópicos / focos -->
+  <div class="modal-backdrop" id="topicsModal" hidden>
+    <div class="modal wide">
+      <h2><svg class="h2-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 3 21 8 12 13 3 8 12 3"/><polyline points="3 12 12 17 21 12"/><polyline points="3 16 12 21 21 16"/></svg><span id="tmTitle">Choose your focus</span></h2>
+      <p id="tmDesc" class="modal-sub">Each focus tracks its own dry spell, record and log.</p>
+      <div class="topic-grid" id="topicGrid"></div>
+
+      <!-- form de custom (escondido até "+ New focus") -->
+      <div class="topic-form" id="topicForm" hidden>
+        <div class="tf-row">
+          <label class="tf-emoji" id="tfEmojiLabel">Emoji
+            <input type="text" id="tfEmoji" maxlength="4" placeholder="🦄" />
+          </label>
+          <label class="tf-pol" id="tfPolLabel">Type
+            <div class="pol-toggle" role="group">
+              <button type="button" class="pol-opt" data-pol="good" id="tfPolGood">🏆 Achievement</button>
+              <button type="button" class="pol-opt" data-pol="bad" id="tfPolBad">😩 Grind</button>
+            </div>
+          </label>
+        </div>
+        <div class="tf-row">
+          <label id="tfEnLabel">Name (EN)
+            <input type="text" id="tfEn" maxlength="24" placeholder="UNICORN" />
+          </label>
+          <label id="tfEnArtLabel">Article (EN)
+            <input type="text" id="tfEnArt" maxlength="8" placeholder="A" />
+          </label>
+        </div>
+        <div class="tf-row">
+          <label id="tfPtLabel">Nome (PT)
+            <input type="text" id="tfPt" maxlength="24" placeholder="UNICÓRNIO" />
+          </label>
+          <label id="tfPtArtLabel">Artigo (PT)
+            <input type="text" id="tfPtArt" maxlength="8" placeholder="UM" />
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button class="btn ghost danger-text" id="tfDelete" hidden>Delete</button>
+          <span class="spacer"></span>
+          <button class="btn ghost" id="tfCancel">Cancel</button>
+          <button class="btn primary" id="tfSave">Save focus</button>
+        </div>
+      </div>
+
+      <div class="modal-actions" id="topicsActions">
+        <button class="btn ghost" id="topicAdd">➕ <span id="tmAdd">New focus</span></button>
+        <span class="spacer"></span>
+        <button class="btn primary" id="topicsClose">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: histórico -->
   <div class="modal-backdrop" id="historyModal" hidden>
     <div class="modal wide">
-      <h2 id="hmTitle">📜 Incident history</h2>
+      <h2><svg class="h2-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5A9 9 0 1 1 3.2 13.4"/><polyline points="3.2 4.5 3.2 9.5 8.2 9.5"/><polyline points="12 7.5 12 12 15.2 13.8"/></svg><span id="hmTitle">Log</span></h2>
       <ul class="history-list" id="historyList"></ul>
       <div class="modal-actions">
         <button class="btn ghost danger-text" id="historyClear">Clear history</button>
@@ -193,6 +259,7 @@
   </div>
 
   <script src="segments.js"></script>
+  <script src="topics.js"></script>
   <script src="renderer.js"></script>
 </body>
 </html>

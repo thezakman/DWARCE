@@ -27,7 +27,22 @@ title, a live counter, a roast verdict, a "longest dry spell" record, an RCE log
 
 ![Dias Sem Um RCE — Português](assets/preview-pt.png)
 
-## Run
+## Download
+
+Grab a prebuilt binary from the [**Releases**](https://github.com/thezakman/DWARCE/releases/latest)
+page — no Node/Electron needed:
+
+| OS | Asset |
+| --- | --- |
+| **macOS** (Apple Silicon / Intel) | `DWARCE-<version>-macos-arm64.zip` / `-macos-x64.zip` |
+| **Windows** (x64) | `DWARCE-<version>-win-x64.zip` |
+| **Linux** (x64) | `DWARCE-<version>-linux-x64.zip` |
+
+Unzip and run the app inside. The builds are **unsigned**, so the first launch needs a nudge:
+macOS → right-click ▸ *Open* (or `xattr -dr com.apple.quarantine DWARCE.app`); Windows →
+*More info ▸ Run anyway* on the SmartScreen prompt.
+
+## Run from source
 
 ```bash
 npm install   # pulls Electron
@@ -38,14 +53,26 @@ Already installed once? Just `npm start`.
 
 ## Features
 
-- ⏱️ **Rust meter** — days since your last RCE, ticking up on its own in real time, plus a live
+- 🎯 **Multiple foci (topics)** — RCE is just the default. Pick what *you* chase: domain owned,
+  admin cracked, vulnerability, 0day, shell, bounty, root, XSS, CVE, CTF first blood/flag, creds,
+  vacation 🏖️ (the burnout meter) and the inside-joke **shooting star** 🌠 — **15 built-in**, each
+  with its **own independent** dry spell, record and log. Switch anytime from the topic chip on the
+  sign or the layers icon. Long names auto-shrink so they never overflow the frame.
+- ➕ **Custom topics** — invent your own (emoji + name in EN/PT + article), pick its **type**, and
+  it's saved to your board. Edit or delete later.
+- 😩 **Two polarities** — *achievement* topics (RCE, 0day…) where 0 days = 🔥 sinister and going
+  long = rusty; and *grind* topics like **shooting star** (last-minute fire drills) where the moral
+  flips: many days **without** one = blissful peace, and catching one is comedic pain.
+- ⏱️ **Rust meter** — days since your last hit, ticking up on its own in real time, plus a live
   `HH:MM:SS` clock.
-- 💀 **Verdict** that shifts as you rust: `sinister` (0 days) → `still sharp` → `getting rusty`
-  → `not a hacker anymore?` (100+), shown as a color-coded status pill.
-- 💥 **Popped an RCE!** — celebration (confetti + triumphant fanfare + flash), resets the meter
-  and logs it (optional note: CVE / target / service).
-- 🏜️ **Longest dry spell** — the record (inverted!): the most days you ever went without an RCE.
-- 🏆 **RCE log** — every RCE you popped (date/time + the dry spell it broke + note).
+- 💀 **Verdict** that shifts with your streak — `sinister` (0 days) → `still sharp` → `getting
+  rusty` → `not a hacker anymore?` — shown as a color-coded status pill (inverted for grind topics).
+- 💥 **Register a hit!** — celebration (confetti + fanfare + gold flash), resets the meter and logs
+  it (optional note: CVE / target / service). Grind topics flip the FX: **rising flames** 🔥, a red
+  panel flare and a "sad trombone" — because catching one means *everything's on fire*.
+- 🏜️ **Longest dry spell** — the record (inverted!): the most days you ever went without one
+  (or longest *peace streak* for grind topics).
+- 🏆 **Log** — every hit you registered (date/time + the streak it broke + note), per topic.
 - ⚙️ **Adjust** — seed/fix the values by hand and **switch language EN ↔ PT-BR**.
 - 🔊 Toggleable sound (WebAudio, no asset files).
 - 🎨 Handcrafted visuals: dark carbon/circuit substrate, yellow hazard frame with hex bolts,
@@ -55,9 +82,11 @@ Already installed once? Just `npm start`.
 ## Persistence
 
 State lives in `rce-board.json` inside Electron's per-user data folder
-(`app.getPath('userData')`), so it survives updates and is never committed. It's generated on
-first run, and every write is atomic (writes to `.tmp`, then renames). Use **📁 Data**
-(inside *Adjust*) to reveal the file.
+(`app.getPath('userData')`), so it survives updates and is never committed. It holds one board
+**per topic** (`{ incidentDate, recordDays, history }`), the active topic, and any custom topic
+definitions. It's generated on first run, every write is atomic (writes to `.tmp`, then renames),
+and old single-topic saves are **migrated automatically** on load. Use **📁 Data** (inside
+*Adjust*) to reveal the file.
 
 ## Security
 
@@ -68,14 +97,36 @@ about RCE couldn't have an RCE. 😏
 
 ```
 main.js            main process (window + IPC)
-store.js           state logic + persistence (unit-testable in isolation)
+store.js           multi-topic state + persistence + migration (unit-testable in isolation)
+store.test.js      unit tests (node --test store.test.js) — migration, CRUD, per-topic ops
 preload.js         safe bridge (contextBridge)
 renderer/
-  index.html       board markup + modals
-  styles.css       all the visuals (dark HUD + LED dot-matrix)
+  index.html       board markup + modals (incident / adjust / log / topics picker)
+  styles.css       all the visuals (dark HUD + LED dot-matrix + picker/form)
   segments.js      LED dot-matrix renderer (digits are lit cells of a shared grid)
-  renderer.js      UI, per-second tick, animations, i18n, responsive scaling
+  topics.js        15 built-in topics + text derivation (headline/verdict by polarity)
+  renderer.js      UI, per-second tick, animations, i18n, topic switching, responsive scaling
 ```
+
+## Tests
+
+```bash
+node --test store.test.js
+```
+
+Covers the multi-topic model: legacy→multi-topic migration (preserving your data), lazy per-topic
+init, custom-topic CRUD, and that incidents/edits only touch the active topic.
+
+## Build binaries
+
+Packages standalone apps for all three platforms (downloads the matching Electron per target):
+
+```bash
+npm run dist          # macOS (arm64+x64) + Windows (x64) + Linux (x64) → dist/
+```
+
+Outputs one folder per target under `dist/`; zip and ship. Building Windows/Linux from macOS works
+out of the box (no Wine/Docker) — `@electron/packager` just fetches prebuilt Electron binaries.
 
 ## License
 

@@ -17,130 +17,146 @@ const el = {
   btnIncident: $('btnIncident'),
   btnHistory: $('btnHistory'),
   btnEdit: $('btnEdit'),
+  btnTopics: $('btnTopics'),
   btnMute: $('btnMute'),
+  topicChip: $('topicChip'),
+  tcEmoji: $('tcEmoji'),
+  tcName: $('tcName'),
 };
 
 let state = { incidentDate: new Date().toISOString(), recordDays: 0, history: [], days: 0 };
 let muted = localStorage.getItem('rce.muted') === '1';
 let lang = localStorage.getItem('rce.lang') || 'en';
 
-/* ---------------- i18n ---------------- */
+// tópicos
+let activeTopicId = 'rce';
+let customTopics = [];
+let topicStats = {};
+let allTopics = window.TOPICS.BUILTIN_TOPICS.slice();
+
+/* ---------------- i18n (chrome da UI; texto do tópico vem de topics.js) ---------------- */
 
 const I18N = {
   en: {
     locale: 'en-US',
-    l1: 'DAYS WITHOUT',
-    an: 'AN',
-    recLabel: 'LONGEST DRY SPELL',
-    recDays: 'DAYS',
-    tagline: (n) => `It has been <b>${n}</b> day${n === 1 ? '' : 's'} since your last RCE`,
-    // veredito: quanto mais dias, mais enferrujado (é ruim ficar sem pegar RCE)
-    verdict: (n) => n === 0 ? { text: "SINISTER — you're on fire", cls: 'fresh' }
-      : n <= 6 ? { text: 'still sharp', cls: 'sharp' }
-      : n <= 29 ? { text: 'getting rusty', cls: 'rusty' }
-      : n <= 99 ? { text: 'seriously rusty', cls: 'rusty' }
-      : { text: 'not a hacker anymore?', cls: 'washed' },
-    btnIncident: 'POPPED AN RCE!',
-    btnHistory: 'History',
-    btnEdit: 'Adjust',
-    sound: 'Sound',
-    imTitle: '🎉 Nice pop!',
-    imDesc: 'Respect. The rust counter resets to zero. What did you pop? (optional)',
-    imPlaceholder: 'CVE-2026-XXXX / target / service...',
+    btnHistory: 'History', btnEdit: 'Adjust', btnTopics: 'Topics', sound: 'Sound',
     imCancel: 'Cancel',
-    imConfirm: 'Log it 🔥',
-    emTitle: '⚙️ Adjust',
-    emLang: 'Language / Idioma',
-    emDays: 'Days since your last RCE (current)',
-    emRecord: 'Longest dry spell (days)',
-    emData: 'Data',
-    emCancel: 'Cancel',
-    emSave: 'Save',
-    hmTitle: '🏆 Your RCE log',
-    hmClear: 'Clear log',
-    hmClose: 'Close',
-    hmEmpty: 'No RCEs logged yet. Go pop something! 🎯',
-    hStreak: (d) => `🎯 Popped after a ${d}-day dry spell`,
+    emTitle: 'Adjust', emLang: 'Language / Idioma',
+    emDays: 'Current days (dry spell)', emRecord: 'Record (days)',
+    emData: 'Data', emCancel: 'Cancel', emSave: 'Save',
+    hmTitle: 'Log', hmClear: 'Clear log', hmClose: 'Close',
+    hmEmpty: 'Nothing logged yet. Go get one! 🎯',
+    tmTitle: 'Choose your focus',
+    tmDesc: 'Each focus tracks its own dry spell, record and log.',
+    tmAdd: 'New focus', topicsClose: 'Close',
+    tfEmoji: 'Emoji', tfType: 'Type', tfGood: '🏆 Achievement', tfBad: '😩 Grind',
+    tfNameEn: 'Name (EN)', tfArtEn: 'Article (EN)', tfNamePt: 'Name (PT)', tfArtPt: 'Article (PT)',
+    tfSave: 'Save focus', tfCancel: 'Cancel', tfDelete: 'Delete',
+    cardRec: 'rec', cardDays: 'd',
   },
   pt: {
     locale: 'pt-BR',
-    l1: 'DIAS SEM',
-    an: 'UM',
-    recLabel: 'MAIOR SECA',
-    recDays: 'DIAS',
-    tagline: (n) => `Faz <b>${n}</b> dia${n === 1 ? '' : 's'} que você não pega um RCE`,
-    verdict: (n) => n === 0 ? { text: 'SINISTRO — tá voando', cls: 'fresh' }
-      : n <= 6 ? { text: 'ainda afiado', cls: 'sharp' }
-      : n <= 29 ? { text: 'começando a enferrujar', cls: 'rusty' }
-      : n <= 99 ? { text: 'enferrujando feio', cls: 'rusty' }
-      : { text: 'não é mais hacker?', cls: 'washed' },
-    btnIncident: 'PEGUEI UM RCE!',
-    btnHistory: 'Histórico',
-    btnEdit: 'Ajustar',
-    sound: 'Som',
-    imTitle: '🎉 Mandou bem!',
-    imDesc: 'Respeito. O contador de ferrugem zera. O que você mandou? (opcional)',
-    imPlaceholder: 'CVE-2026-XXXX / alvo / serviço...',
+    btnHistory: 'Histórico', btnEdit: 'Ajustar', btnTopics: 'Focos', sound: 'Som',
     imCancel: 'Cancelar',
-    imConfirm: 'Registrar 🔥',
-    emTitle: '⚙️ Ajustar',
-    emLang: 'Idioma / Language',
-    emDays: 'Dias desde o último RCE (atual)',
-    emRecord: 'Maior seca (dias)',
-    emData: 'Dados',
-    emCancel: 'Cancelar',
-    emSave: 'Salvar',
-    hmTitle: '🏆 Seu log de RCEs',
-    hmClear: 'Limpar log',
-    hmClose: 'Fechar',
-    hmEmpty: 'Nenhum RCE ainda. Vai lá pegar um! 🎯',
-    hStreak: (d) => `🎯 Pegou depois de ${d} dia${d === 1 ? '' : 's'} de seca`,
+    emTitle: 'Ajustar', emLang: 'Idioma / Language',
+    emDays: 'Dias atuais (seca)', emRecord: 'Recorde (dias)',
+    emData: 'Dados', emCancel: 'Cancelar', emSave: 'Salvar',
+    hmTitle: 'Registro', hmClear: 'Limpar', hmClose: 'Fechar',
+    hmEmpty: 'Nada registrado ainda. Vai lá pegar um! 🎯',
+    tmTitle: 'Escolha seu foco',
+    tmDesc: 'Cada foco tem sua própria seca, recorde e registro.',
+    tmAdd: 'Novo foco', topicsClose: 'Fechar',
+    tfEmoji: 'Emoji', tfType: 'Tipo', tfGood: '🏆 Conquista', tfBad: '😩 Perrengue',
+    tfNameEn: 'Nome (EN)', tfArtEn: 'Artigo (EN)', tfNamePt: 'Nome (PT)', tfArtPt: 'Artigo (PT)',
+    tfSave: 'Salvar foco', tfCancel: 'Cancelar', tfDelete: 'Excluir',
+    cardRec: 'rec', cardDays: 'd',
   },
 };
 
 function t() { return I18N[lang] || I18N.en; }
+function curTopic() { return allTopics.find((x) => x.id === activeTopicId) || allTopics[0]; }
+function tc() { return window.TOPICS.topicCopy(curTopic(), lang); }
 
 const setText = (id, txt) => { const n = $(id); if (n) n.textContent = txt; };
+const setTitle = (id, txt) => {
+  const n = $(id); if (!n) return;
+  n.title = txt; n.setAttribute('aria-label', txt);
+};
+
+// Aplica o texto/estética do tópico ativo (headline, chip, botão, modal incidente).
+function applyTopic() {
+  const c = tc();
+  // chip
+  el.tcEmoji.textContent = c.emoji;
+  el.tcName.textContent = c.subject;
+  // headline
+  setText('hlL1', c.l1);
+  setText('hlSubject', c.subject);
+  const anStacked = $('hlAnStacked');
+  if (c.article) {                          // com artigo ("AN"/"UM"/...)
+    setText('hlAnInline', ' ' + c.article); // modo wide: " AN"
+    anStacked.textContent = c.article;      // modo narrow: ao lado do subject
+    anStacked.style.display = '';           // volta ao controle da container query
+  } else {                                  // sem artigo (ex.: FÉRIAS)
+    setText('hlAnInline', '');
+    anStacked.textContent = '';
+    anStacked.style.display = 'none';       // evita gap fantasma no modo narrow
+  }
+  // recorde
+  setText('recLabel', c.recLabel);
+  setText('recDays', c.recDays);
+  // botão principal
+  setText('btnIncidentTxt', c.button);
+  // modal incidente (título/desc/confirm/placeholder)
+  setText('imTitle', c.imTitle);
+  setText('imDesc', c.imDesc);
+  setText('incidentConfirm', c.imConfirm);
+  const note = $('incidentNote'); if (note) note.placeholder = c.placeholder;
+}
 
 function applyLang() {
   const d = t();
   document.documentElement.lang = d.locale;
-  setText('hlL1', d.l1);
-  setText('hlAnInline', ' ' + d.an);   // inline (modo wide): " AN"
-  setText('hlAnStacked', d.an);         // ao lado do RCE (modo narrow)
-  setText('recLabel', d.recLabel);
-  setText('recDays', d.recDays);
-  setText('btnIncidentTxt', d.btnIncident);
-  // tooltips localizados dos ícones flat
-  const setTitle = (id, txt) => {
-    const n = $(id); if (!n) return;
-    n.title = txt; n.setAttribute('aria-label', txt);
-  };
+  // ícones/tooltips
+  setTitle('btnTopics', d.btnTopics);
   setTitle('btnHistory', d.btnHistory);
   setTitle('btnEdit', d.btnEdit);
   setTitle('btnMute', d.sound);
-  // modal incidente
-  setText('imTitle', d.imTitle);
-  setText('imDesc', d.imDesc);
-  $('incidentNote').placeholder = d.imPlaceholder;
+  // modal incidente (cancel genérico)
   setText('incidentCancel', d.imCancel);
-  setText('incidentConfirm', d.imConfirm);
   // modal ajustar
   setText('emTitle', d.emTitle);
   $('emLangLabel').childNodes[0].nodeValue = d.emLang + ' ';
   $('emDaysLabel').childNodes[0].nodeValue = d.emDays + ' ';
   $('emRecordLabel').childNodes[0].nodeValue = d.emRecord + ' ';
-  setText('emData', d.emData);
+  setTitle('editReveal', d.emData); // botão só-ícone: texto vira tooltip
   setText('editCancel', d.emCancel);
   setText('editSave', d.emSave);
   // modal histórico
   setText('hmTitle', d.hmTitle);
   setText('historyClear', d.hmClear);
   setText('historyClose', d.hmClose);
-  // toggle ativo
+  // modal tópicos
+  setText('tmTitle', d.tmTitle);
+  setText('tmDesc', d.tmDesc);
+  setText('tmAdd', d.tmAdd);
+  setText('topicsClose', d.topicsClose);
+  $('tfEmojiLabel').childNodes[0].nodeValue = d.tfEmoji + ' ';
+  $('tfPolLabel').childNodes[0].nodeValue = d.tfType + ' ';
+  setText('tfPolGood', d.tfGood);
+  setText('tfPolBad', d.tfBad);
+  $('tfEnLabel').childNodes[0].nodeValue = d.tfNameEn + ' ';
+  $('tfEnArtLabel').childNodes[0].nodeValue = d.tfArtEn + ' ';
+  $('tfPtLabel').childNodes[0].nodeValue = d.tfNamePt + ' ';
+  $('tfPtArtLabel').childNodes[0].nodeValue = d.tfArtPt + ' ';
+  setText('tfSave', d.tfSave);
+  setText('tfCancel', d.tfCancel);
+  setText('tfDelete', d.tfDelete);
+  // toggle ativo de idioma
   document.querySelectorAll('.lang-opt').forEach((b) => {
     b.classList.toggle('active', b.dataset.lang === lang);
   });
+  applyTopic();
 }
 
 /* ---------------- helpers ---------------- */
@@ -150,7 +166,6 @@ function daysFrom(iso) {
   return e > 0 ? Math.floor(e / DAY_MS) : 0;
 }
 
-// Retorna "Dd HH:MM:SS" desde o incidente (parte de tempo do dia atual)
 function liveClockText(iso) {
   let e = Date.now() - Date.parse(iso);
   if (e < 0) e = 0;
@@ -164,10 +179,13 @@ function liveClockText(iso) {
 
 function applyState(s) {
   state = s;
+  activeTopicId = s.activeTopic || 'rce';
+  customTopics = s.customTopics || [];
+  topicStats = s.topicStats || {};
+  allTopics = window.TOPICS.BUILTIN_TOPICS.concat(customTopics);
   el.recordVal.textContent = s.recordDays;
 }
 
-// Re-renderiza a matriz só quando o nº de dias OU a largura do painel muda
 let lastDays = -1, lastMatrixW = -1;
 function renderMatrix() {
   const w = el.matrix.clientWidth;
@@ -177,18 +195,16 @@ function renderMatrix() {
   window.LED.renderDisplay(el.matrix, state.days);
 }
 
-// Atualiza os números na tela (chamado a cada segundo)
 function tick() {
   const days = daysFrom(state.incidentDate);
   state.days = days;
   renderMatrix();
   el.liveClock.textContent = liveClockText(state.incidentDate);
-  el.tagline.innerHTML = t().tagline(days);
-  // veredito de ferrugem
-  const v = t().verdict(days);
+  const c = tc();
+  el.tagline.innerHTML = c.tagline(days);
+  const v = c.verdict(days);
   el.verdict.textContent = v.text;
   el.verdict.className = 'verdict ' + v.cls;
-  // "maior seca" continua sendo o maior nº de dias já ficado sem pegar RCE
   if (days > state.recordDays) el.recordVal.textContent = days;
 }
 
@@ -214,10 +230,16 @@ function beep(freq, when, dur, type = 'square', gain = 0.14) {
 }
 
 function winSound() {
-  // fanfarra ascendente triunfante (pegar um RCE é BOM)
+  // fanfarra ascendente triunfante (conquista)
   const notes = [523.25, 659.25, 783.99, 1046.5]; // C5 E5 G5 C6
   notes.forEach((f, i) => beep(f, i * 0.11, 0.22, 'triangle', 0.13));
-  beep(1318.5, 0.44, 0.3, 'triangle', 0.11); // E6 pra fechar
+  beep(1318.5, 0.44, 0.3, 'triangle', 0.11);
+}
+
+function loseSound() {
+  // "sad trombone" descendente (perrengue — caiu uma estrela)
+  const notes = [392.0, 349.23, 311.13, 261.63]; // G4 F4 Eb4 C4
+  notes.forEach((f, i) => beep(f, i * 0.16, 0.3, 'sawtooth', 0.1));
 }
 
 const ICON_SOUND = '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'
@@ -254,27 +276,44 @@ function burstConfetti(n = 60) {
     frag.appendChild(p);
   }
   el.confetti.appendChild(frag);
-  // limpa depois que caiu tudo
   setTimeout(() => { el.confetti.innerHTML = ''; }, 3400);
 }
 
-/* ---------------- comemoração ao pegar um RCE ---------------- */
+/* ---------------- fogo subindo (perrengue) ---------------- */
 
-function playWinFX() {
+function burstFire(n = 26) {
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < n; i++) {
+    const p = document.createElement('div');
+    p.className = 'flame';
+    p.textContent = Math.random() < 0.82 ? '🔥' : '💨';
+    p.style.left = (Math.random() * 100) + 'vw';
+    p.style.fontSize = (16 + Math.random() * 24) + 'px';
+    p.style.animationDuration = (1.3 + Math.random() * 1.3) + 's';
+    p.style.animationDelay = (Math.random() * 0.5) + 's';
+    p.style.setProperty('--drift', (Math.random() * 60 - 30).toFixed(0) + 'px');
+    frag.appendChild(p);
+  }
+  el.confetti.appendChild(frag);
+  setTimeout(() => { el.confetti.innerHTML = ''; }, 3200);
+}
+
+/* ---------------- FX ao registrar (varia com a polaridade) ---------------- */
+
+function playWinFX(polarity) {
+  const bad = polarity === 'bad';
   el.sign.classList.remove('shake');
-  el.panel.classList.remove('win');
-  el.flash.classList.remove('boom');
-  // força reflow para reiniciar animações
+  el.panel.classList.remove('win', 'doom');
+  el.flash.classList.remove('boom', 'boom-bad');
   void el.sign.offsetWidth;
   el.sign.classList.add('shake');
-  el.panel.classList.add('win');
-  el.flash.classList.add('boom');
-  winSound();
-  burstConfetti();
+  el.panel.classList.add(bad ? 'doom' : 'win');
+  el.flash.classList.add(bad ? 'boom-bad' : 'boom');
+  if (bad) { loseSound(); burstFire(); } else { winSound(); burstConfetti(); }
   setTimeout(() => {
     el.sign.classList.remove('shake');
-    el.panel.classList.remove('win');
-    el.flash.classList.remove('boom');
+    el.panel.classList.remove('win', 'doom');
+    el.flash.classList.remove('boom', 'boom-bad');
   }, 1200);
 }
 
@@ -293,11 +332,12 @@ function wireIncidentModal() {
   $('incidentCancel').addEventListener('click', () => closeModal('incidentModal'));
   $('incidentConfirm').addEventListener('click', async () => {
     const note = input.value.trim();
+    const pol = curTopic().polarity;
     closeModal('incidentModal');
     const s = await window.rce.registerIncident(note);
     applyState(s);
     tick();
-    playWinFX();
+    playWinFX(pol);
   });
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') $('incidentConfirm').click();
@@ -313,13 +353,13 @@ function wireEditModal() {
   });
   $('editCancel').addEventListener('click', () => closeModal('editModal'));
   $('editReveal').addEventListener('click', () => window.rce.reveal());
-  // toggle de idioma
   document.querySelectorAll('.lang-opt').forEach((b) => {
     b.addEventListener('click', () => {
       lang = b.dataset.lang;
       localStorage.setItem('rce.lang', lang);
       applyLang();
       tick();
+      fitToWindow(); // subjects mudam de idioma → re-ajusta o título
       renderHistory();
     });
   });
@@ -346,6 +386,7 @@ function renderHistory() {
     ul.appendChild(li);
     return;
   }
+  const c = tc();
   for (const h of state.history) {
     const li = document.createElement('li');
     const d = new Date(h.date);
@@ -354,7 +395,7 @@ function renderHistory() {
     top.className = 'h-top';
     const streak = document.createElement('span');
     streak.className = 'h-streak';
-    streak.textContent = t().hStreak(h.streakDays);
+    streak.textContent = c.logVerb(h.streakDays);
     const date = document.createElement('span');
     date.className = 'h-date';
     date.textContent = dateStr;
@@ -383,6 +424,136 @@ function wireHistoryModal() {
   });
 }
 
+/* ---------------- picker de tópicos + CRUD custom ---------------- */
+
+let editingCustomId = null; // null = modo criar
+
+function isCustom(id) { return customTopics.some((t2) => t2.id === id); }
+
+function renderTopicGrid() {
+  const grid = $('topicGrid');
+  grid.innerHTML = '';
+  const d = t();
+  for (const topic of allTopics) {
+    const name = window.TOPICS.topicName(topic, lang);
+    const st = topicStats[topic.id] || { days: 0, recordDays: 0 };
+    const card = document.createElement('div');
+    card.className = 'topic-card' + (topic.id === activeTopicId ? ' active' : '')
+      + (topic.polarity === 'bad' ? ' grind' : '');
+    card.dataset.id = topic.id;
+    card.innerHTML =
+      `<span class="card-emoji">${topic.emoji}</span>`
+      + `<span class="card-name"></span>`
+      + `<span class="card-stats"><b>${st.days}</b>${d.cardDays} · ${d.cardRec} ${st.recordDays}</span>`;
+    card.querySelector('.card-name').textContent = name;
+    if (isCustom(topic.id)) {
+      const edit = document.createElement('button');
+      edit.className = 'card-edit';
+      edit.title = d.btnEdit;
+      edit.textContent = '✎';
+      edit.addEventListener('click', (e) => { e.stopPropagation(); openTopicForm(topic); });
+      card.appendChild(edit);
+    }
+    card.addEventListener('click', () => selectTopic(topic.id));
+    grid.appendChild(card);
+  }
+}
+
+async function selectTopic(id) {
+  if (id === activeTopicId) { closeModal('topicsModal'); return; }
+  const s = await window.rce.setTopic(id);
+  applyState(s);
+  applyTopic();
+  lastDays = -1; // força re-render da matriz
+  tick();
+  fitToWindow(); // re-ajusta o título ao novo subject
+  closeModal('topicsModal');
+}
+
+function showTopicForm(show) {
+  $('topicForm').hidden = !show;
+  $('topicGrid').hidden = show;
+  $('topicsActions').hidden = show;
+  $('tmDesc').hidden = show;
+}
+
+function setPolarity(pol) {
+  document.querySelectorAll('.pol-opt').forEach((b) => {
+    b.classList.toggle('active', b.dataset.pol === pol);
+  });
+}
+
+function currentFormPolarity() {
+  const active = document.querySelector('.pol-opt.active');
+  return active ? active.dataset.pol : 'good';
+}
+
+// abre form: topic=null → criar; topic=def → editar
+function openTopicForm(topic) {
+  openModal('topicsModal'); // garante o modal aberto (o form vive dentro dele)
+  editingCustomId = topic ? topic.id : null;
+  $('tfEmoji').value = topic ? topic.emoji : '';
+  $('tfEn').value = topic ? (topic.en.subject || '') : '';
+  $('tfEnArt').value = topic ? (topic.en.article || '') : '';
+  $('tfPt').value = topic ? (topic.pt.subject || '') : '';
+  $('tfPtArt').value = topic ? (topic.pt.article || '') : '';
+  setPolarity(topic ? topic.polarity : 'good');
+  $('tfDelete').hidden = !topic;
+  showTopicForm(true);
+  setTimeout(() => $('tfEmoji').focus(), 50);
+}
+
+function buildDefFromForm() {
+  const en = { subject: $('tfEn').value.trim(), article: $('tfEnArt').value.trim() };
+  const pt = { subject: $('tfPt').value.trim(), article: $('tfPtArt').value.trim() };
+  en.long = en.subject; pt.long = pt.subject;
+  return {
+    polarity: currentFormPolarity(),
+    emoji: $('tfEmoji').value.trim() || '⭐',
+    en, pt,
+  };
+}
+
+function wireTopicsModal() {
+  const open = () => {
+    renderTopicGrid();
+    showTopicForm(false);
+    openModal('topicsModal');
+  };
+  el.btnTopics.addEventListener('click', open);
+  el.topicChip.addEventListener('click', open);
+  $('topicsClose').addEventListener('click', () => closeModal('topicsModal'));
+  $('topicAdd').addEventListener('click', () => openTopicForm(null));
+  $('tfCancel').addEventListener('click', () => showTopicForm(false));
+  document.querySelectorAll('.pol-opt').forEach((b) => {
+    b.addEventListener('click', () => setPolarity(b.dataset.pol));
+  });
+  $('tfSave').addEventListener('click', async () => {
+    const def = buildDefFromForm();
+    if (!def.en.subject && !def.pt.subject) return; // precisa de ao menos um nome
+    if (!def.en.subject) def.en = { ...def.pt };
+    if (!def.pt.subject) def.pt = { ...def.en };
+    const s = editingCustomId
+      ? await window.rce.updateTopic(editingCustomId, def)
+      : await window.rce.addTopic(def);
+    applyState(s);
+    applyTopic();
+    fitToWindow();
+    renderTopicGrid();
+    showTopicForm(false);
+  });
+  $('tfDelete').addEventListener('click', async () => {
+    if (!editingCustomId) return;
+    const wasActive = editingCustomId === activeTopicId;
+    const s = await window.rce.deleteTopic(editingCustomId);
+    applyState(s);
+    applyTopic();
+    if (wasActive) { lastDays = -1; tick(); fitToWindow(); }
+    renderTopicGrid();
+    showTopicForm(false);
+  });
+}
+
 // fecha modal ao clicar fora
 document.querySelectorAll('.modal-backdrop').forEach((bd) => {
   bd.addEventListener('click', (e) => { if (e.target === bd) bd.hidden = true; });
@@ -390,18 +561,62 @@ document.querySelectorAll('.modal-backdrop').forEach((bd) => {
 
 /* ---------------- responsivo: escala pra caber ---------------- */
 
+// Mede a largura real de um texto no font atual do elemento (independe de
+// centralização/overflow — scrollWidth não serve pra flex-item centralizado).
+let _mctx = null;
+function textWidth(text, elem) {
+  if (!_mctx) _mctx = document.createElement('canvas').getContext('2d');
+  const s = getComputedStyle(elem);
+  _mctx.font = `${s.fontStyle} ${s.fontWeight} ${s.fontSize} ${s.fontFamily}`;
+  try { if ('letterSpacing' in _mctx) _mctx.letterSpacing = s.letterSpacing; } catch (_) {}
+  return _mctx.measureText(text).width;
+}
+
+// Ajusta o tamanho do título à largura da placa: subjects longos (ESTRELA,
+// CREDENCIAIS, FIRST BLOOD...) encolhem pra não estourar a moldura.
+function fitHeadline() {
+  const inner = document.querySelector('.sign-inner');
+  const subj = $('hlSubject');
+  const an = $('hlAnStacked');
+  const l1 = document.querySelector('.headline .l1');
+  if (!inner || !subj || !l1) return;
+  const cs = getComputedStyle(inner);
+  const avail = inner.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 12;
+  if (avail <= 0) return;
+  // reseta pro tamanho base do CSS antes de medir
+  subj.style.fontSize = '';
+  l1.style.fontSize = '';
+  // --- linha do subject (palavra vermelha grande, + "UMA/AN" no modo estreito) ---
+  const anVisible = getComputedStyle(an).display !== 'none';
+  const gap = 14; // .headline .l2 { gap: 14px }
+  const anW = anVisible ? textWidth(an.textContent, an) + gap : 0;
+  const availSubj = avail - anW;
+  const sw = textWidth(subj.textContent, subj);
+  if (sw > availSubj && availSubj > 0) {
+    const base = parseFloat(getComputedStyle(subj).fontSize);
+    subj.style.fontSize = Math.max(30, base * availSubj / sw * 0.97).toFixed(1) + 'px';
+  }
+  // --- linha 1 ("DAYS WITHOUT AN") — raramente estoura, mas garante ---
+  const l1w = textWidth(l1.textContent, l1);
+  if (l1w > avail) {
+    const base1 = parseFloat(getComputedStyle(l1).fontSize);
+    l1.style.fontSize = Math.max(24, base1 * avail / l1w * 0.98).toFixed(1) + 'px';
+  }
+}
+
 function fitToWindow() {
   const scaler = $('signScaler');
   const sign = el.sign;
   if (!scaler || !sign) return;
-  scaler.style.transform = 'translate(-50%, -50%) scale(1)'; // reset pra medir natural
+  scaler.style.transform = 'translate(-50%, -50%) scale(1)';
+  fitHeadline(); // ajusta o título à largura antes de medir a placa
   const w = sign.offsetWidth, h = sign.offsetHeight;
   const pad = 24;
   const availW = window.innerWidth - pad;
   const availH = window.innerHeight - pad;
   const scale = Math.min(1.35, availW / w, availH / h);
   scaler.style.transform = 'translate(-50%, -50%) scale(' + scale.toFixed(4) + ')';
-  renderMatrix(); // largura do painel pode ter mudado
+  renderMatrix();
 }
 
 /* ---------------- boot ---------------- */
@@ -418,17 +633,18 @@ async function boot() {
   wireIncidentModal();
   wireEditModal();
   wireHistoryModal();
-  applyLang();
-
-  // responsivo: escala já no início (evita flash) e a cada resize
-  fitToWindow();
-  window.addEventListener('resize', fitToWindow);
+  wireTopicsModal();
 
   const s = await window.rce.get();
   applyState(s);
+  applyLang();
+
+  fitToWindow();
+  window.addEventListener('resize', fitToWindow);
+
   tick();
   setInterval(tick, 1000);
-  fitToWindow(); // reajusta após render final
+  fitToWindow();
 }
 
 window.addEventListener('DOMContentLoaded', boot);

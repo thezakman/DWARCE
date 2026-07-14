@@ -14,9 +14,13 @@ let statePath = null;
 
 function registerIpc() {
   ipcMain.handle('rce:get', () => store.get());
+  ipcMain.handle('rce:setTopic', (_e, id) => store.setTopic(id));
   ipcMain.handle('rce:incident', (_e, note) => store.registerIncident(note));
   ipcMain.handle('rce:edit', (_e, payload) => store.edit(payload));
   ipcMain.handle('rce:clearHistory', () => store.clearHistory());
+  ipcMain.handle('rce:addTopic', (_e, def) => store.addTopic(def));
+  ipcMain.handle('rce:updateTopic', (_e, id, def) => store.updateTopic(id, def));
+  ipcMain.handle('rce:deleteTopic', (_e, id) => store.deleteTopic(id));
   ipcMain.handle('rce:reveal', () => {
     shell.showItemInFolder(statePath);
     return true;
@@ -58,6 +62,10 @@ function createWindow() {
         await win.webContents.executeJavaScript(
           `localStorage.setItem('rce.lang','${process.env.RCE_LANG}')`);
         win.webContents.reload();
+      }
+      if (process.env.RCE_TOPIC) {
+        setTimeout(() => win.webContents.executeJavaScript(
+          `window.rce.setTopic(${JSON.stringify(process.env.RCE_TOPIC)}).then(()=>location.reload());`), 250);
       }
       if (process.env.RCE_OPEN) {
         setTimeout(() => win.webContents.executeJavaScript(
