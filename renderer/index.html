@@ -91,19 +91,21 @@
           <span class="l2" id="hlL2">R<span class="c">C</span>E</span>
         </h1>
 
-        <!-- Recorde -->
+        <!-- "Recorde" invertido = maior seca (vergonha) -->
         <div class="record" id="record">
-          <span class="rec-label" id="recLabel">OUR RECORD</span>
+          <span class="rec-label" id="recLabel">LONGEST DRY SPELL</span>
           <span class="rec-val"><b id="recordVal">0</b> <span id="recDays">DAYS</span></span>
         </div>
 
+        <!-- veredito que zoa conforme a ferrugem -->
+        <div class="verdict" id="verdict"></div>
         <div class="tagline" id="tagline"></div>
       </div>
 
       <!-- Barra de ações -->
       <div class="actions">
-        <button class="btn danger" id="btnIncident" title="Registrar um novo RCE (zera o contador)">
-          <span class="boom">💥</span> <span id="btnIncidentTxt">REGISTER RCE</span>
+        <button class="btn win" id="btnIncident" title="Você pegou um RCE! (zera a ferrugem)">
+          <span class="boom">💥</span> <span id="btnIncidentTxt">POPPED AN RCE!</span>
         </button>
         <button class="btn ghost" id="btnHistory" title="Histórico de incidentes">📜 <span id="btnHistoryTxt">HISTORY</span></button>
         <button class="btn ghost" id="btnEdit" title="Editar valores">⚙️ <span id="btnEditTxt">ADJUST</span></button>
@@ -112,18 +114,19 @@
     </div>
   </main>
 
-  <!-- Overlay de flash/sirene no incidente -->
+  <!-- Overlay de comemoração + confete -->
   <div class="incident-flash" id="flash" aria-hidden="true"></div>
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
 
-  <!-- Modal: registrar RCE -->
+  <!-- Modal: comemorar RCE -->
   <div class="modal-backdrop" id="incidentModal" hidden>
     <div class="modal">
-      <h2 id="imTitle">💥 New RCE</h2>
-      <p id="imDesc">This resets the counter. Note what happened (optional):</p>
-      <input type="text" id="incidentNote" maxlength="200" placeholder="CVE-2026-XXXX / service / component..." />
+      <h2 id="imTitle">🎉 Nice pop!</h2>
+      <p id="imDesc">Respect. The rust counter resets to zero. What did you pop? (optional)</p>
+      <input type="text" id="incidentNote" maxlength="200" placeholder="CVE-2026-XXXX / target / service..." />
       <div class="modal-actions">
         <button class="btn ghost" id="incidentCancel">Cancel</button>
-        <button class="btn danger" id="incidentConfirm">Confirm RCE</button>
+        <button class="btn win" id="incidentConfirm">Log it 🔥</button>
       </div>
     </div>
   </div>

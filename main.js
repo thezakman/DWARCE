@@ -55,6 +55,11 @@ function createWindow() {
           `localStorage.setItem('rce.lang','${process.env.RCE_LANG}')`);
         win.webContents.reload();
       }
+      if (process.env.RCE_CLICK) {
+        setTimeout(() => win.webContents.executeJavaScript(
+          `document.getElementById('btnIncident').click();`
+          + `setTimeout(()=>document.getElementById('incidentConfirm').click(),120);`), 400);
+      }
       setTimeout(async () => {
         try {
           const img = await win.webContents.capturePage();

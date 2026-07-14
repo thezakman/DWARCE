@@ -2,13 +2,18 @@
 
 ![Ops](assets/ops.png)
 
-Uma placa de segurança industrial — daquelas de *"Estamos há ___ dias sem acidentes de
-trabalho, nosso recorde é ___ dias"* — mas que conta os **dias sem um RCE**
-(Remote Code Execution).
+Uma paródia das placas de segurança industrial — *"Estamos há ___ dias sem acidentes de
+trabalho, nosso recorde é ___ dias"* — mas **com a moral invertida**: aqui conta os
+**dias sem um RCE** (Remote Code Execution).
 
-App desktop (Electron) com um **painel LED dot-matrix vermelho** embutido numa **placa amarela
-desgastada**, contador que evolui em tempo real, recorde, histórico de incidentes, dois idiomas
-(EN / PT-BR) e persistência local.
+Na placa de fábrica, muitos dias **sem acidente** é bom. Aqui é o **contrário**: quanto mais
+dias você fica **sem pegar um RCE**, mais **enferrujado** você está (*"não é mais hacker?"* 💀).
+Estar em **0 dias** = você acabou de mandar um = 🔥 **sinistro**. Pegar um RCE é **comemoração**
+(confete e fanfarra), não alarme.
+
+App desktop (Electron) com **painel LED dot-matrix vermelho** embutido numa **placa amarela
+desgastada** montada na parede, contador em tempo real, veredito que te zoa, "maior seca",
+log de RCEs, dois idiomas (EN / PT-BR) e persistência local.
 
 ![Days Without An RCE — English](assets/preview-en.png)
 
@@ -23,16 +28,18 @@ npm start
 
 ## Recursos
 
-- ⏱️ Contador de **dias** que cresce sozinho a partir do último incidente, + relógio ao vivo
-  `HH:MM:SS`.
-- 💥 **Registrar RCE** — zera o contador com animação (shake + flash/sirene + som WebAudio),
-  atualiza o recorde se o streak for batido, e salva uma nota (CVE / serviço / componente).
-- 🏆 **Recorde** em selo estampado.
-- 📜 **Histórico** de incidentes (data/hora + streak + nota).
-- ⚙️ **Ajustar** — semear/corrigir dias e recorde à mão, e **trocar idioma EN ↔ PT-BR**.
+- ⏱️ **Medidor de ferrugem** — dias desde o seu último RCE, crescendo sozinho em tempo real,
+  + relógio ao vivo `HH:MM:SS`.
+- 💀 **Veredito** que muda conforme você enferruja: `🔥 sinistro` (0 dias) → `ainda afiado` →
+  `começando a enferrujar…` → `não é mais hacker? 💀` (100+).
+- 💥 **Peguei um RCE!** — comemoração (confete + fanfarra + flash dourado), zera o medidor e
+  registra no seu log (com nota opcional: CVE / alvo / serviço).
+- 🏜️ **Maior seca** — o recorde (invertido!) do maior nº de dias que você já ficou sem pegar um RCE.
+- 🏆 **Log de RCEs** — cada RCE pego (data/hora + tamanho da seca que quebrou + nota).
+- ⚙️ **Ajustar** — semear/corrigir os valores à mão e **trocar idioma EN ↔ PT-BR**.
 - 🔊 Som ligável/desligável.
-- 🎨 Visual caprichado: moldura de placa amarela com ferrugem, arranhões, grão, parafusos, tinta
-  descascando; painel LED com glow, scanline, reflexo de vidro e flicker sutil.
+- 🎨 Visual caprichado: parede industrial com holofote, placa amarela com ferrugem, arranhões,
+  grão, parafusos e tinta descascando; painel LED com glow, bloom vermelho, scanline e flicker.
 
 ## Persistência
 

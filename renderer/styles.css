@@ -537,6 +537,22 @@ body {
 }
 .btn.danger:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 3px 0 rgba(90,0,0,.7), 0 10px 26px rgba(255,50,30,.55); }
 .btn.danger .boom { filter: drop-shadow(0 0 4px rgba(255,210,0,.9)); }
+
+/* botão de "pegar um RCE" — vermelho (combina com a placa) */
+.btn.win {
+  background: linear-gradient(180deg, #ff4a3c 0%, #e0261d 55%, #b81411 100%);
+  border-color: #5c0000;
+  color: #fff;
+  font-size: 17px;
+  padding: 13px 24px;
+  text-shadow: 0 1px 1px rgba(0,0,0,.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.35),
+    0 3px 0 rgba(90,0,0,.7),
+    0 8px 20px rgba(220,30,20,.4);
+}
+.btn.win:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 3px 0 rgba(90,0,0,.7), 0 10px 26px rgba(255,50,30,.55); }
+.btn.win .boom { filter: drop-shadow(0 0 4px rgba(255,210,0,.9)); }
 .btn.primary { background: linear-gradient(180deg, #37a24d, #1f6e30); border-color:#0c3d18; }
 .btn.ghost { background: linear-gradient(180deg, #2b2b24, #201f18); color: #f4d47a; }
 .btn.icon { font-size: 18px; padding: 11px 13px; }
@@ -640,41 +656,87 @@ body {
 .history-list .h-note { color: #d8d8de; }
 .history-list .empty { color: #77777f; text-align: center; padding: 24px; }
 
-/* ---------------- Flash de incidente ---------------- */
+/* ---------------- Veredito (zoação por ferrugem) ---------------- */
+
+.verdict {
+  margin: 12px auto 0;
+  width: fit-content;
+  max-width: 92%;
+  text-align: center;
+  font-family: "Haettenschweiler", "Impact", "Arial Narrow", sans-serif;
+  font-weight: 800;
+  letter-spacing: .5px;
+  font-size: clamp(18px, 3.6vw, 26px);
+  text-transform: uppercase;
+  padding: 3px 14px;
+  border-radius: 6px;
+  color: var(--ink);
+  transition: color .3s ease;
+}
+/* cores do veredito por nível de ferrugem */
+.verdict.fresh  { color: #0b7a2e; text-shadow: 0 0 12px rgba(30,220,90,.5); }
+.verdict.sharp  { color: #1f6e30; }
+.verdict.rusty  { color: #9a5b00; }
+.verdict.washed { color: #b81411; text-shadow: 0 1px 0 rgba(0,0,0,.15); }
+
+/* ---------------- Comemoração ---------------- */
 
 .incident-flash {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 50% 40%, rgba(255,40,20,.0), rgba(120,0,0,.0));
+  background: transparent;
   opacity: 0;
   z-index: 40;
 }
 .incident-flash.boom {
-  animation: siren 1.05s ease-out;
+  animation: celebrate 1.1s ease-out;
 }
-@keyframes siren {
-  0%   { opacity: 0; background: radial-gradient(circle at 50% 40%, rgba(255,60,30,.85), rgba(120,0,0,.6)); }
-  18%  { opacity: 1; }
-  40%  { opacity: .25; }
-  60%  { opacity: .9; }
+@keyframes celebrate {
+  0%   { opacity: 0; background: radial-gradient(circle at 50% 42%, rgba(255,215,110,.7), rgba(255,150,40,.35) 45%, transparent 75%); }
+  14%  { opacity: 1; }
+  50%  { opacity: .3; }
+  70%  { opacity: .6; }
   100% { opacity: 0; }
 }
 
-/* shake da placa no incidente */
+/* bump alegre da placa ao comemorar */
 @keyframes shake {
-  0%,100% { transform: translate(0,0) rotate(0); }
-  15% { transform: translate(-9px, 3px) rotate(-1deg); }
-  30% { transform: translate(8px, -4px) rotate(1.1deg); }
-  45% { transform: translate(-7px, 4px) rotate(-.8deg); }
-  60% { transform: translate(6px, -3px) rotate(.7deg); }
-  75% { transform: translate(-4px, 2px) rotate(-.4deg); }
+  0%   { transform: scale(1) rotate(0); }
+  22%  { transform: scale(1.045) rotate(-1.2deg); }
+  44%  { transform: scale(.99) rotate(1deg); }
+  66%  { transform: scale(1.02) rotate(-.5deg); }
+  100% { transform: scale(1) rotate(0); }
 }
-.sign.shake { animation: shake .55s ease; }
+.sign.shake { animation: shake .6s ease; }
 
-/* pulso vermelho no painel quando zera */
-.panel.alarm { animation: panelAlarm 1s ease; }
-@keyframes panelAlarm {
-  0%,100% { box-shadow: inset 0 0 0 3px rgba(255,255,255,.9), inset 0 0 0 6px #000, inset 0 10px 40px rgba(0,0,0,.9), 0 6px 14px rgba(0,0,0,.5); }
-  30%,70% { box-shadow: inset 0 0 0 3px rgba(255,60,40,.95), inset 0 0 0 6px #400, inset 0 0 60px rgba(255,20,10,.5), 0 0 40px rgba(255,30,10,.6); }
+/* pulso dourado no painel ao comemorar */
+.panel.win { animation: panelWin 1s ease; }
+@keyframes panelWin {
+  0%,100% { box-shadow: inset 0 0 0 3px rgba(255,255,255,.92), inset 0 0 0 6px #000, inset 0 12px 44px rgba(0,0,0,.92), 0 8px 18px rgba(0,0,0,.55); }
+  35%,70% { box-shadow: inset 0 0 0 3px rgba(255,225,140,.95), inset 0 0 0 6px #4a2c00, inset 0 0 60px rgba(255,180,60,.4), 0 0 46px rgba(255,200,90,.6); }
+}
+
+/* ---------------- Confete ---------------- */
+
+.confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 45;
+  overflow: hidden;
+}
+.confetti .piece {
+  position: absolute;
+  top: -12px;
+  width: 9px;
+  height: 14px;
+  border-radius: 1px;
+  will-change: transform, opacity;
+  animation: fall linear forwards;
+}
+@keyframes fall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  85%  { opacity: 1; }
+  100% { transform: translateY(102vh) rotate(720deg); opacity: 0; }
 }

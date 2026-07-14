@@ -11,6 +11,8 @@ const el = {
   liveClock: $('liveClock'),
   recordVal: $('recordVal'),
   tagline: $('tagline'),
+  verdict: $('verdict'),
+  confetti: $('confetti'),
   flash: $('flash'),
   btnIncident: $('btnIncident'),
   btnHistory: $('btnHistory'),
@@ -28,56 +30,67 @@ const I18N = {
   en: {
     locale: 'en-US',
     l1: 'DAYS WITHOUT AN',
-    recLabel: 'OUR RECORD',
+    recLabel: 'LONGEST DRY SPELL',
     recDays: 'DAYS',
-    tagline: (n) => `It has been <b>${n}</b> day${n === 1 ? '' : 's'} without remote code execution`,
-    btnIncident: 'REGISTER RCE',
+    tagline: (n) => `It has been <b>${n}</b> day${n === 1 ? '' : 's'} since your last RCE`,
+    // veredito: quanto mais dias, mais enferrujado (é ruim ficar sem pegar RCE)
+    verdict: (n) => n === 0 ? { text: "🔥 SINISTER — you're on fire", cls: 'fresh' }
+      : n <= 6 ? { text: 'still sharp', cls: 'sharp' }
+      : n <= 29 ? { text: 'getting rusty…', cls: 'rusty' }
+      : n <= 99 ? { text: 'seriously rusty', cls: 'rusty' }
+      : { text: 'not a hacker anymore? 💀', cls: 'washed' },
+    btnIncident: 'POPPED AN RCE!',
     btnHistory: 'HISTORY',
     btnEdit: 'ADJUST',
-    imTitle: '💥 New RCE',
-    imDesc: 'This resets the counter. Note what happened (optional):',
-    imPlaceholder: 'CVE-2026-XXXX / service / component...',
+    imTitle: '🎉 Nice pop!',
+    imDesc: 'Respect. The rust counter resets to zero. What did you pop? (optional)',
+    imPlaceholder: 'CVE-2026-XXXX / target / service...',
     imCancel: 'Cancel',
-    imConfirm: 'Confirm RCE',
+    imConfirm: 'Log it 🔥',
     emTitle: '⚙️ Adjust',
     emLang: 'Language / Idioma',
-    emDays: 'Days without an RCE (current)',
-    emRecord: 'Record (days)',
+    emDays: 'Days since your last RCE (current)',
+    emRecord: 'Longest dry spell (days)',
     emData: 'Data',
     emCancel: 'Cancel',
     emSave: 'Save',
-    hmTitle: '📜 Incident history',
-    hmClear: 'Clear history',
+    hmTitle: '🏆 Your RCE log',
+    hmClear: 'Clear log',
     hmClose: 'Close',
-    hmEmpty: 'No incidents logged. Nice! 🎉',
-    hStreak: (d) => `⏱ Streak of ${d} day${d === 1 ? '' : 's'}`,
+    hmEmpty: 'No RCEs logged yet. Go pop something! 🎯',
+    hStreak: (d) => `🎯 Popped after a ${d}-day dry spell`,
   },
   pt: {
     locale: 'pt-BR',
     l1: 'DIAS SEM UM',
-    recLabel: 'NOSSO RECORDE',
+    recLabel: 'MAIOR SECA',
     recDays: 'DIAS',
-    tagline: (n) => `Estamos há <b>${n}</b> dia${n === 1 ? '' : 's'} sem execução remota de código`,
-    btnIncident: 'REGISTRAR RCE',
+    tagline: (n) => `Faz <b>${n}</b> dia${n === 1 ? '' : 's'} que você não pega um RCE`,
+    verdict: (n) => n === 0 ? { text: '🔥 SINISTRO — tá voando', cls: 'fresh' }
+      : n <= 6 ? { text: 'ainda afiado', cls: 'sharp' }
+      : n <= 29 ? { text: 'começando a enferrujar…', cls: 'rusty' }
+      : n <= 99 ? { text: 'enferrujando feio', cls: 'rusty' }
+      : { text: 'não é mais hacker? 💀', cls: 'washed' },
+    btnIncident: 'PEGUEI UM RCE!',
     btnHistory: 'HISTÓRICO',
     btnEdit: 'AJUSTAR',
-    imTitle: '💥 Novo RCE',
-    imDesc: 'Isso zera o contador. Anota o que aconteceu (opcional):',
-    imPlaceholder: 'CVE-2026-XXXX / serviço / componente...',
+    imTitle: '🎉 Mandou bem!',
+    imDesc: 'Respeito. O contador de ferrugem zera. O que você mandou? (opcional)',
+    imPlaceholder: 'CVE-2026-XXXX / alvo / serviço...',
     imCancel: 'Cancelar',
-    imConfirm: 'Confirmar RCE',
+    imConfirm: 'Registrar 🔥',
     emTitle: '⚙️ Ajustar',
     emLang: 'Idioma / Language',
-    emDays: 'Dias sem um RCE (contagem atual)',
-    emRecord: 'Recorde (dias)',
+    emDays: 'Dias desde o último RCE (atual)',
+    emRecord: 'Maior seca (dias)',
     emData: 'Dados',
     emCancel: 'Cancelar',
     emSave: 'Salvar',
-    hmTitle: '📜 Histórico de incidentes',
-    hmClear: 'Limpar histórico',
+    hmTitle: '🏆 Seu log de RCEs',
+    hmClear: 'Limpar log',
     hmClose: 'Fechar',
-    hmEmpty: 'Nenhum incidente registrado. Boa! 🎉',
-    hStreak: (d) => `⏱ Streak de ${d} dia${d === 1 ? '' : 's'}`,
+    hmEmpty: 'Nenhum RCE ainda. Vai lá pegar um! 🎯',
+    hStreak: (d) => `🎯 Pegou depois de ${d} dia${d === 1 ? '' : 's'} de seca`,
   },
 };
 
@@ -149,7 +162,11 @@ function tick() {
   window.LED.renderNumber(el.digits, days);
   el.liveClock.textContent = liveClockText(state.incidentDate);
   el.tagline.innerHTML = t().tagline(days);
-  // Se bateu o recorde ao vivo, reflete no painel (sem gravar; grava só no incidente)
+  // veredito de ferrugem
+  const v = t().verdict(days);
+  el.verdict.textContent = v.text;
+  el.verdict.className = 'verdict ' + v.cls;
+  // "maior seca" continua sendo o maior nº de dias já ficado sem pegar RCE
   if (days > state.recordDays) el.recordVal.textContent = days;
 }
 
@@ -174,33 +191,61 @@ function beep(freq, when, dur, type = 'square', gain = 0.14) {
   } catch (_) { /* silencioso */ }
 }
 
-function sirenSound() {
-  // duas notas alternadas tipo alarme
-  for (let i = 0; i < 3; i++) {
-    beep(880, i * 0.28, 0.16, 'sawtooth', 0.12);
-    beep(620, i * 0.28 + 0.14, 0.16, 'sawtooth', 0.12);
-  }
+function winSound() {
+  // fanfarra ascendente triunfante (pegar um RCE é BOM)
+  const notes = [523.25, 659.25, 783.99, 1046.5]; // C5 E5 G5 C6
+  notes.forEach((f, i) => beep(f, i * 0.11, 0.22, 'triangle', 0.13));
+  beep(1318.5, 0.44, 0.3, 'triangle', 0.11); // E6 pra fechar
 }
 
 function updateMuteBtn() {
   el.btnMute.textContent = muted ? '🔇' : '🔊';
 }
 
-/* ---------------- animação de incidente ---------------- */
+/* ---------------- confete ---------------- */
 
-function playIncidentFX() {
+const CONFETTI_COLORS = ['#f4b400', '#ff3b30', '#3ecf5a', '#ffffff', '#ff8a1e', '#4ea3ff'];
+
+function burstConfetti(n = 60) {
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < n; i++) {
+    const p = document.createElement('div');
+    p.className = 'piece';
+    const left = Math.random() * 100;
+    const delay = Math.random() * 0.35;
+    const dur = 1.6 + Math.random() * 1.4;
+    const size = 6 + Math.random() * 7;
+    p.style.left = left + 'vw';
+    p.style.width = size + 'px';
+    p.style.height = (size * 1.5) + 'px';
+    p.style.background = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+    p.style.animationDuration = dur + 's';
+    p.style.animationDelay = delay + 's';
+    p.style.transform = `translateY(-20px) rotate(${Math.random() * 360}deg)`;
+    if (Math.random() < 0.5) p.style.borderRadius = '50%';
+    frag.appendChild(p);
+  }
+  el.confetti.appendChild(frag);
+  // limpa depois que caiu tudo
+  setTimeout(() => { el.confetti.innerHTML = ''; }, 3400);
+}
+
+/* ---------------- comemoração ao pegar um RCE ---------------- */
+
+function playWinFX() {
   el.sign.classList.remove('shake');
-  el.panel.classList.remove('alarm');
+  el.panel.classList.remove('win');
   el.flash.classList.remove('boom');
   // força reflow para reiniciar animações
   void el.sign.offsetWidth;
   el.sign.classList.add('shake');
-  el.panel.classList.add('alarm');
+  el.panel.classList.add('win');
   el.flash.classList.add('boom');
-  sirenSound();
+  winSound();
+  burstConfetti();
   setTimeout(() => {
     el.sign.classList.remove('shake');
-    el.panel.classList.remove('alarm');
+    el.panel.classList.remove('win');
     el.flash.classList.remove('boom');
   }, 1200);
 }
@@ -224,7 +269,7 @@ function wireIncidentModal() {
     const s = await window.rce.registerIncident(note);
     applyState(s);
     tick();
-    playIncidentFX();
+    playWinFX();
   });
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') $('incidentConfirm').click();
