@@ -30,17 +30,25 @@ title, a live counter, a roast verdict, a "longest dry spell" record, an RCE log
 ## Download
 
 Grab a prebuilt binary from the [**Releases**](https://github.com/thezakman/DWARCE/releases/latest)
-page — no Node/Electron needed:
+page — no Node/Electron needed. Assets are `.tar.xz` (LZMA-compressed, ~60–75 MB):
 
 | OS | Asset |
 | --- | --- |
-| **macOS** (Apple Silicon / Intel) | `DWARCE-<version>-macos-arm64.zip` / `-macos-x64.zip` |
-| **Windows** (x64) | `DWARCE-<version>-win-x64.zip` |
-| **Linux** (x64) | `DWARCE-<version>-linux-x64.zip` |
+| **macOS** (Apple Silicon / Intel) | `DWARCE-<version>-macos-arm64.tar.xz` / `-macos-x64.tar.xz` |
+| **Windows** (x64) | `DWARCE-<version>-win-x64.tar.xz` |
+| **Linux** (x64) | `DWARCE-<version>-linux-x64.tar.xz` |
 
-Unzip and run the app inside. The builds are **unsigned**, so the first launch needs a nudge:
-macOS → right-click ▸ *Open* (or `xattr -dr com.apple.quarantine DWARCE.app`); Windows →
-*More info ▸ Run anyway* on the SmartScreen prompt.
+Extract, then run the app inside:
+
+- **macOS** — double-click to extract (or `tar xf DWARCE-*.tar.xz`), then right-click `DWARCE.app`
+  ▸ *Open* (unsigned build; or `xattr -dr com.apple.quarantine DWARCE.app`).
+- **Windows** — `tar -xf DWARCE-*.tar.xz` (built into Win 10/11) or 7-Zip, then run `DWARCE.exe`
+  (*More info ▸ Run anyway* on SmartScreen).
+- **Linux** — `tar xf DWARCE-*.tar.xz && ./DWARCE-linux-x64/DWARCE`.
+
+> Why `.tar.xz` and not a small `.exe`? Electron bundles a full Chromium runtime, so ~100 MB is
+> unavoidable; LZMA trims it to ~65 MB. For a truly tiny binary the shell would need a lighter
+> runtime (e.g. Tauri).
 
 ## Run from source
 
@@ -119,14 +127,15 @@ init, custom-topic CRUD, and that incidents/edits only touch the active topic.
 
 ## Build binaries
 
-Packages standalone apps for all three platforms (downloads the matching Electron per target):
+Packages standalone apps for all three platforms, prunes unused Chromium locales (keeps EN/PT-BR)
+and LZMA-compresses each into `dist/*.tar.xz`:
 
 ```bash
-npm run dist          # macOS (arm64+x64) + Windows (x64) + Linux (x64) → dist/
+npm run dist          # macOS (arm64+x64) + Windows (x64) + Linux (x64)
 ```
 
-Outputs one folder per target under `dist/`; zip and ship. Building Windows/Linux from macOS works
-out of the box (no Wine/Docker) — `@electron/packager` just fetches prebuilt Electron binaries.
+Building Windows/Linux from macOS works out of the box (no Wine/Docker) — `@electron/packager`
+just fetches prebuilt Electron binaries. Requires `tar` and `xz` on the PATH.
 
 ## License
 
