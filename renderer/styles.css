@@ -28,15 +28,50 @@ html, body {
 }
 
 body {
+  background: #0b0b0d;
+}
+
+/* ---------------- Parede industrial de fundo ---------------- */
+.wall {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background:
-    radial-gradient(120% 90% at 50% 0%, #26262b 0%, #141416 55%, #0c0c0e 100%);
+    radial-gradient(90% 70% at 50% 42%, #34343a 0%, #232327 42%, #161619 72%, #0c0c0e 100%);
+}
+/* textura de concreto */
+.wall-grain {
+  position: absolute;
+  inset: -2%;
+  filter: url(#concrete);
+  opacity: .16;
+  mix-blend-mode: overlay;
+}
+/* holofote quente atrás da placa */
+.spotlight {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(38% 34% at 50% 42%, rgba(255,220,140,.22) 0%, rgba(255,195,100,.1) 45%, transparent 72%),
+    radial-gradient(60% 55% at 50% 40%, rgba(255,210,120,.08) 0%, transparent 70%);
+  mix-blend-mode: screen;
+}
+/* vinheta nas bordas */
+.vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 100% at 50% 45%, transparent 52%, rgba(0,0,0,.5) 88%, rgba(0,0,0,.72) 100%);
 }
 
 .stage {
+  position: relative;
+  z-index: 1;
   height: 100vh;
   display: grid;
   place-items: center;
-  padding: 26px;
+  padding: 30px;
 }
 
 /* ---------------- Placa amarela (moldura grunge) ---------------- */
@@ -45,14 +80,15 @@ body {
   position: relative;
   width: min(760px, 92vw);
   background:
-    radial-gradient(140% 120% at 30% 10%, #ffce46 0%, var(--yellow) 40%, var(--yellow-deep) 100%);
+    radial-gradient(135% 115% at 32% 6%, #ffd75e 0%, #ffc22e 34%, var(--yellow) 58%, var(--yellow-deep) 100%);
   border-radius: 18px;
   padding: 22px 24px 18px;
   box-shadow:
-    0 34px 70px rgba(0,0,0,.6),
-    0 10px 22px rgba(0,0,0,.45),
-    inset 0 2px 0 rgba(255,255,255,.25),
-    inset 0 -8px 24px rgba(120,70,0,.35);
+    0 44px 90px rgba(0,0,0,.62),
+    0 18px 34px rgba(0,0,0,.5),
+    0 2px 0 rgba(255,255,255,.12),
+    inset 0 3px 1px rgba(255,255,255,.32),
+    inset 0 -10px 28px rgba(120,70,0,.4);
   isolation: isolate;
   animation: signSway 9s ease-in-out infinite;
   transform-origin: 50% -40px;
@@ -224,16 +260,33 @@ body {
 .panel {
   position: relative;
   background:
-    linear-gradient(180deg, #131010 0%, var(--panel-bg) 60%, #050404 100%);
+    radial-gradient(120% 90% at 50% 30%, #17110f 0%, #0c0908 55%, #040303 100%);
   border-radius: 14px;
   padding: 22px 26px 16px;
   margin: 6px 4px 14px;
   box-shadow:
-    inset 0 0 0 3px rgba(255,255,255,.9),   /* borda branca fina (Imagem 1) */
+    inset 0 0 0 3px rgba(255,255,255,.92),   /* borda branca fina (Imagem 1) */
     inset 0 0 0 6px #000,
-    inset 0 10px 40px rgba(0,0,0,.9),
-    0 6px 14px rgba(0,0,0,.5);
+    inset 0 12px 44px rgba(0,0,0,.92),
+    inset 0 -6px 20px rgba(0,0,0,.7),
+    0 8px 18px rgba(0,0,0,.55);
   overflow: hidden;
+}
+
+/* luz ambiente vermelha emanando dos dígitos */
+.led-bloom {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(46% 60% at 50% 42%, rgba(255,40,25,.28) 0%, rgba(200,20,10,.12) 40%, transparent 72%);
+  mix-blend-mode: screen;
+  animation: bloomPulse 4.2s ease-in-out infinite;
+}
+@keyframes bloomPulse {
+  0%, 100% { opacity: .9; }
+  50% { opacity: .62; }
 }
 
 /* brilho de vidro + scanlines sutis + vinheta */
@@ -361,64 +414,80 @@ body {
 /* ---------------- Tipografia da placa ---------------- */
 
 .headline {
-  margin: 4px 0 2px;
+  margin: 6px 0 2px;
   text-align: center;
   color: var(--ink);
-  font-family: "Arial Narrow", "Oswald", Impact, sans-serif;
+  font-family: "Haettenschweiler", "Impact", "Franklin Gothic Bold", "Arial Narrow", sans-serif;
   font-weight: 800;
-  line-height: .92;
+  line-height: .9;
   text-transform: uppercase;
 }
 .headline .l1 {
   display: block;
-  font-size: clamp(30px, 6.5vw, 52px);
-  letter-spacing: 1px;
+  font-size: clamp(32px, 6.8vw, 56px);
+  letter-spacing: .5px;
+  /* relevo estampado no metal */
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.28),
+    0 -1px 0 rgba(0,0,0,.25),
+    0 3px 5px rgba(90,55,0,.28);
 }
 .headline .l2 {
   display: block;
-  font-size: clamp(52px, 12vw, 96px);
-  letter-spacing: 2px;
+  font-size: clamp(56px, 12.5vw, 104px);
+  letter-spacing: 1px;
   color: var(--danger);
-  -webkit-text-stroke: 2px rgba(0,0,0,.35);
-  text-shadow: 0 2px 0 rgba(0,0,0,.18);
+  background: linear-gradient(180deg, #ff4132 0%, var(--danger) 55%, #a81414 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1.5px rgba(50,0,0,.45);
+  filter: drop-shadow(0 2px 1px rgba(0,0,0,.35)) drop-shadow(0 4px 8px rgba(150,10,0,.3));
 }
 
 .record {
-  margin: 12px auto 4px;
+  margin: 14px auto 4px;
   width: fit-content;
   display: flex;
   flex-direction: column;
   align-items: center;
   color: var(--ink);
-  background: rgba(0,0,0,.08);
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.16), rgba(0,0,0,.04));
   border: 3px solid var(--ink);
-  border-radius: 8px;
-  padding: 6px 18px;
-  transform: rotate(-1.2deg);
+  border-radius: 9px;
+  padding: 7px 22px 8px;
+  transform: rotate(-1.1deg);
+  box-shadow:
+    inset 0 2px 5px rgba(0,0,0,.28),
+    inset 0 -1px 0 rgba(255,255,255,.22),
+    0 1px 0 rgba(255,255,255,.2);
 }
 .rec-label {
   font-family: "Arial Narrow", Impact, sans-serif;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
   letter-spacing: 4px;
+  opacity: .82;
 }
 .rec-val {
-  font-family: "Arial Narrow", Impact, sans-serif;
+  font-family: "Haettenschweiler", "Impact", "Arial Narrow", sans-serif;
   font-weight: 800;
-  font-size: 26px;
+  font-size: 27px;
   letter-spacing: 1px;
+  text-shadow: 0 1px 0 rgba(255,255,255,.22);
 }
-.rec-val b { font-size: 30px; }
+.rec-val b { font-size: 32px; }
 
 .tagline {
-  margin: 12px 4px 2px;
+  margin: 13px 4px 2px;
   text-align: center;
   color: var(--ink-soft);
   font-size: 13px;
   font-style: italic;
-  opacity: .85;
+  opacity: .8;
 }
-.tagline b { font-style: normal; }
+.tagline b { font-style: normal; font-weight: 800; }
 
 /* ---------------- Ações ---------------- */
 
@@ -440,27 +509,37 @@ body {
   text-transform: uppercase;
   font-size: 15px;
   color: #fff;
-  background: #1b1b1e;
-  border: 2px solid #000;
-  border-radius: 9px;
-  padding: 10px 16px;
+  background: linear-gradient(180deg, #2a2a2f 0%, #171719 100%);
+  border: 1px solid #000;
+  border-radius: 10px;
+  padding: 11px 17px;
   cursor: pointer;
-  transition: transform .08s ease, filter .15s ease, background .15s ease;
-  box-shadow: 0 3px 0 rgba(0,0,0,.5);
+  transition: transform .08s ease, filter .15s ease, box-shadow .15s ease;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    0 3px 0 rgba(0,0,0,.55),
+    0 6px 12px rgba(0,0,0,.4);
 }
-.btn:hover { filter: brightness(1.18); }
-.btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.5); }
+.btn:hover { filter: brightness(1.2); transform: translateY(-1px); }
+.btn:active { transform: translateY(2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 1px 0 rgba(0,0,0,.55); }
 
 .btn.danger {
-  background: linear-gradient(180deg, #e33 0%, var(--danger) 100%);
-  border-color: #6c0000;
+  background: linear-gradient(180deg, #ff4a3c 0%, #e0261d 55%, #b81411 100%);
+  border-color: #5c0000;
+  color: #fff;
   font-size: 17px;
-  padding: 12px 22px;
+  padding: 13px 24px;
+  text-shadow: 0 1px 1px rgba(0,0,0,.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.35),
+    0 3px 0 rgba(90,0,0,.7),
+    0 8px 20px rgba(220,30,20,.4);
 }
-.btn.danger .boom { filter: drop-shadow(0 0 3px rgba(255,200,0,.8)); }
-.btn.primary { background: linear-gradient(180deg, #2b8a3e, #1f6e30); border-color:#0c3d18; }
-.btn.ghost { background: #23231f; color: #f4d47a; }
-.btn.icon { font-size: 18px; padding: 10px 12px; }
+.btn.danger:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 3px 0 rgba(90,0,0,.7), 0 10px 26px rgba(255,50,30,.55); }
+.btn.danger .boom { filter: drop-shadow(0 0 4px rgba(255,210,0,.9)); }
+.btn.primary { background: linear-gradient(180deg, #37a24d, #1f6e30); border-color:#0c3d18; }
+.btn.ghost { background: linear-gradient(180deg, #2b2b24, #201f18); color: #f4d47a; }
+.btn.icon { font-size: 18px; padding: 11px 13px; }
 .btn.danger-text { color: #ff6b6b; }
 
 /* ---------------- Modais ---------------- */

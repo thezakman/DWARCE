@@ -29,6 +29,12 @@
         <feColorMatrix in="n" type="matrix"
           values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .55 0"/>
       </filter>
+      <!-- textura de concreto da parede -->
+      <filter id="concrete">
+        <feTurbulence type="fractalNoise" baseFrequency="0.045 0.05" numOctaves="4" seed="33" stitchTiles="stitch" result="n"/>
+        <feColorMatrix in="n" type="matrix"
+          values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .8 0"/>
+      </filter>
       <!-- manchas de ferrugem grandes e irregulares -->
       <filter id="rust">
         <feTurbulence type="fractalNoise" baseFrequency="0.03 0.045" numOctaves="4" seed="21" result="n"/>
@@ -38,6 +44,13 @@
       </filter>
     </defs>
   </svg>
+
+  <!-- parede industrial de fundo -->
+  <div class="wall" aria-hidden="true">
+    <div class="wall-grain"></div>
+    <div class="spotlight"></div>
+    <div class="vignette"></div>
+  </div>
 
   <main class="stage">
     <div class="sign" id="sign">
@@ -63,6 +76,7 @@
       <div class="sign-inner">
         <!-- Painel LED -->
         <section class="panel" id="panel">
+          <div class="led-bloom" aria-hidden="true"></div>
           <div class="panel-glass" aria-hidden="true"></div>
           <div class="panel-sheen" aria-hidden="true"></div>
           <div class="panel-dust" aria-hidden="true"></div>
