@@ -60,11 +60,11 @@ const BUILTIN_TOPICS = [
     } },
 
   { id: 'vuln', polarity: 'good', emoji: '🐛',
-    en: { subject: 'VULN', article: 'A', long: 'vulnerability' },
-    pt: { subject: 'VULNERABILIDADE', article: 'UMA', long: 'vulnerabilidade' },
+    en: { subject: 'BUG', article: 'A', long: 'bug' },
+    pt: { subject: 'BUG', article: 'UM', long: 'bug' },
     overrides: {
-      en: { button: 'FOUND A VULN! 🐛' },
-      pt: { button: 'ACHEI UMA VULN! 🐛' },
+      en: { button: 'FOUND A BUG! 🐛' },
+      pt: { button: 'ACHEI UM BUG! 🐛' },
     } },
 
   { id: 'shooting-star', polarity: 'bad', emoji: '🌠',
