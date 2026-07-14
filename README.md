@@ -1,5 +1,7 @@
 # 🟥 DWARCE — Days Without An RCE
 
+![Ops](assets/ops.png)
+
 Uma placa de segurança industrial — daquelas de *"Estamos há ___ dias sem acidentes de
 trabalho, nosso recorde é ___ dias"* — mas que conta os **dias sem um RCE**
 (Remote Code Execution).
