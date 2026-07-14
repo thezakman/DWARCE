@@ -59,17 +59,25 @@ function renderDisplay(container, value) {
   const offX = (w - cols * pitch) / 2 + pitch / 2;
   const offY = (h - rows * pitch) / 2 + pitch / 2;
 
-  const startCol = Math.round((cols - totalCols) / 2);
-  const startRow = Math.max(0, Math.round((rows - DH) / 2));
-
-  // conjunto de células acesas
-  const lit = new Set();
+  // células acesas em posição relativa (base 0)
+  const raw = [];
   chars.forEach((ch, i) => {
-    const base = startCol + i * (DW + GAP);
+    const base = i * (DW + GAP);
     (SEG_MAP[ch] || []).forEach((seg) => {
-      SEG_CELLS[seg].forEach(([c, r]) => lit.add((base + c) + ',' + (startRow + r)));
+      SEG_CELLS[seg].forEach(([c, r]) => raw.push([base + c, r]));
     });
   });
+
+  // centraliza pela EXTENSÃO REAL dos LEDs acesos (ink bbox), não pela
+  // largura nominal — senão dígitos tortos como "1"/"7" descentralizam.
+  let minC = Infinity, maxC = -Infinity;
+  for (const [c] of raw) { if (c < minC) minC = c; if (c > maxC) maxC = c; }
+  const inkW = raw.length ? (maxC - minC + 1) : totalCols;
+  const startCol = Math.round((cols - inkW) / 2) - (raw.length ? minC : 0);
+  const startRow = Math.max(0, Math.round((rows - DH) / 2));
+
+  const lit = new Set();
+  for (const [c, r] of raw) lit.add((c + startCol) + ',' + (startRow + r));
 
   const rOff = (pitch * 0.15).toFixed(2);
   const rOn = (pitch * 0.34).toFixed(2);

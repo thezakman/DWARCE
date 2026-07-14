@@ -35,11 +35,11 @@ const I18N = {
     recDays: 'DAYS',
     tagline: (n) => `It has been <b>${n}</b> day${n === 1 ? '' : 's'} since your last RCE`,
     // veredito: quanto mais dias, mais enferrujado (é ruim ficar sem pegar RCE)
-    verdict: (n) => n === 0 ? { text: "🔥 SINISTER — you're on fire", cls: 'fresh' }
+    verdict: (n) => n === 0 ? { text: "SINISTER — you're on fire", cls: 'fresh' }
       : n <= 6 ? { text: 'still sharp', cls: 'sharp' }
-      : n <= 29 ? { text: 'getting rusty…', cls: 'rusty' }
+      : n <= 29 ? { text: 'getting rusty', cls: 'rusty' }
       : n <= 99 ? { text: 'seriously rusty', cls: 'rusty' }
-      : { text: 'not a hacker anymore? 💀', cls: 'washed' },
+      : { text: 'not a hacker anymore?', cls: 'washed' },
     btnIncident: 'POPPED AN RCE!',
     btnHistory: 'History',
     btnEdit: 'Adjust',
@@ -69,11 +69,11 @@ const I18N = {
     recLabel: 'MAIOR SECA',
     recDays: 'DIAS',
     tagline: (n) => `Faz <b>${n}</b> dia${n === 1 ? '' : 's'} que você não pega um RCE`,
-    verdict: (n) => n === 0 ? { text: '🔥 SINISTRO — tá voando', cls: 'fresh' }
+    verdict: (n) => n === 0 ? { text: 'SINISTRO — tá voando', cls: 'fresh' }
       : n <= 6 ? { text: 'ainda afiado', cls: 'sharp' }
-      : n <= 29 ? { text: 'começando a enferrujar…', cls: 'rusty' }
+      : n <= 29 ? { text: 'começando a enferrujar', cls: 'rusty' }
       : n <= 99 ? { text: 'enferrujando feio', cls: 'rusty' }
-      : { text: 'não é mais hacker? 💀', cls: 'washed' },
+      : { text: 'não é mais hacker?', cls: 'washed' },
     btnIncident: 'PEGUEI UM RCE!',
     btnHistory: 'Histórico',
     btnEdit: 'Ajustar',

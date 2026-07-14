@@ -720,26 +720,40 @@ body {
 
 /* ---------------- Veredito (zoação por ferrugem) ---------------- */
 
+/* veredito = pill/badge pequeno com ponto indicador colorido */
 .verdict {
-  margin: 9px auto 0;
+  margin: 12px auto 2px;
   width: fit-content;
-  max-width: 92%;
-  text-align: center;
-  font-family: "Haettenschweiler", "Impact", "Arial Narrow", sans-serif;
-  font-weight: 800;
-  letter-spacing: .5px;
-  font-size: 26px;
+  max-width: 94%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: "Arial Narrow", "Oswald", sans-serif;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  font-size: 13px;
   text-transform: uppercase;
-  padding: 2px 14px;
-  border-radius: 6px;
-  color: var(--ink);
-  transition: color .3s ease;
+  white-space: nowrap;
+  padding: 6px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  transition: color .3s ease, border-color .3s ease;
 }
-/* cores do veredito por nível de ferrugem */
-.verdict.fresh  { color: #0b7a2e; text-shadow: 0 0 12px rgba(30,220,90,.5); }
-.verdict.sharp  { color: #1f6e30; }
-.verdict.rusty  { color: #9a5b00; }
-.verdict.washed { color: #b81411; text-shadow: 0 1px 0 rgba(0,0,0,.15); }
+.verdict::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+/* cores por nível de ferrugem */
+.verdict.fresh  { color: #35d67a; border-color: rgba(53,214,122,.42); }
+.verdict.sharp  { color: #b0d84a; border-color: rgba(176,216,74,.42); }
+.verdict.rusty  { color: #f0a92a; border-color: rgba(240,169,42,.42); }
+.verdict.washed { color: #ff5a4d; border-color: rgba(255,90,77,.45); }
 
 /* ---------------- Comemoração ---------------- */
 
