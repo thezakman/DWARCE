@@ -29,7 +29,8 @@ let lang = localStorage.getItem('rce.lang') || 'en';
 const I18N = {
   en: {
     locale: 'en-US',
-    l1: 'DAYS WITHOUT AN',
+    l1: 'DAYS WITHOUT',
+    an: 'AN',
     recLabel: 'LONGEST DRY SPELL',
     recDays: 'DAYS',
     tagline: (n) => `It has been <b>${n}</b> day${n === 1 ? '' : 's'} since your last RCE`,
@@ -63,7 +64,8 @@ const I18N = {
   },
   pt: {
     locale: 'pt-BR',
-    l1: 'DIAS SEM UM',
+    l1: 'DIAS SEM',
+    an: 'UM',
     recLabel: 'MAIOR SECA',
     recDays: 'DIAS',
     tagline: (n) => `Faz <b>${n}</b> dia${n === 1 ? '' : 's'} que você não pega um RCE`,
@@ -104,6 +106,7 @@ function applyLang() {
   const d = t();
   document.documentElement.lang = d.locale;
   setText('hlL1', d.l1);
+  setText('hlAn', d.an);
   setText('recLabel', d.recLabel);
   setText('recDays', d.recDays);
   setText('btnIncidentTxt', d.btnIncident);

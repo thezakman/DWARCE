@@ -447,8 +447,24 @@ body {
     0 -1px 0 rgba(0,0,0,.25),
     0 3px 5px rgba(90,55,0,.28);
 }
+/* linha 2: "AN" (preto, menor) + "RCE" (vermelho, grande), alinhados pela base */
 .headline .l2 {
-  display: block;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 14px;
+  line-height: 1;
+}
+.headline .an {
+  font-size: 50px;
+  letter-spacing: .5px;
+  color: var(--ink);
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.28),
+    0 -1px 0 rgba(0,0,0,.25),
+    0 3px 5px rgba(90,55,0,.28);
+}
+.headline .rce {
   font-size: 104px;
   letter-spacing: 1px;
   color: var(--danger);
