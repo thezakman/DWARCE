@@ -59,6 +59,10 @@ function createWindow() {
           `localStorage.setItem('rce.lang','${process.env.RCE_LANG}')`);
         win.webContents.reload();
       }
+      if (process.env.RCE_OPEN) {
+        setTimeout(() => win.webContents.executeJavaScript(
+          `document.getElementById('${process.env.RCE_OPEN}').click();`), 500);
+      }
       if (process.env.RCE_CLICK) {
         setTimeout(() => win.webContents.executeJavaScript(
           `document.getElementById('btnIncident').click();`

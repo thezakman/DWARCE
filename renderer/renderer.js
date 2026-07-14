@@ -106,7 +106,8 @@ function applyLang() {
   const d = t();
   document.documentElement.lang = d.locale;
   setText('hlL1', d.l1);
-  setText('hlAn', d.an);
+  setText('hlAnInline', ' ' + d.an);   // inline (modo wide): " AN"
+  setText('hlAnStacked', d.an);         // ao lado do RCE (modo narrow)
   setText('recLabel', d.recLabel);
   setText('recDays', d.recDays);
   setText('btnIncidentTxt', d.btnIncident);

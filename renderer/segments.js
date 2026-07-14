@@ -83,7 +83,7 @@ function setDigit(svg, ch) {
   });
 }
 
-const MIN_SLOTS = 3; // casas mínimas; as sobrando viram dígitos "fantasma" (apagados)
+const MIN_SLOTS = 1; // o "campo" de pontos apagados vem do grid de fundo do painel
 
 // Renderiza um número inteiro em `container` como painel de dígitos.
 // Reaproveita os <svg> existentes; só cria/remove quando muda a qtd.

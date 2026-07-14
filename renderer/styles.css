@@ -93,6 +93,7 @@ body {
   /* largura fluida: encolhe reduzindo margem/espaço vazio, conteúdo em tamanho fixo.
      mín. 468px (abaixo disso o wrapper escala uniformemente). */
   width: clamp(468px, calc(100vw - 28px), 760px);
+  container-type: inline-size;   /* pra alternar o layout do título por largura */
   background:
     radial-gradient(135% 115% at 32% 6%, #ffd75e 0%, #ffc22e 34%, var(--yellow) 58%, var(--yellow-deep) 100%);
   border-radius: 18px;
@@ -385,18 +386,48 @@ body {
 }
 
 .led {
-  fill: var(--led-off);
+  fill: transparent;   /* apagado = invisível; o campo de pontos vem do .led-grid */
   transition: fill .12s ease;
 }
 
 .digit g.on .led {
   fill: url(#ledGrad);
   filter:
-    drop-shadow(0 0 1.5px rgba(255,180,120,.9))
-    drop-shadow(0 0 5px rgba(255,60,30,.9))
-    drop-shadow(0 0 11px rgba(255,30,15,.55));
+    drop-shadow(0 0 2px rgba(255,200,140,.95))
+    drop-shadow(0 0 6px rgba(255,70,35,.95))
+    drop-shadow(0 0 14px rgba(255,35,18,.7))
+    drop-shadow(0 0 26px rgba(255,20,10,.4));
   animation: ledBreath 4.2s ease-in-out infinite;
 }
+
+/* campo de LEDs apagados (dot-matrix) preenchendo o painel */
+.led-grid {
+  position: absolute;
+  inset: 10px;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 8px;
+  background-image: radial-gradient(circle, rgba(150,32,24,.85) 0 1.5px, transparent 2.1px);
+  background-size: 13px 13px;
+  background-position: center;
+  opacity: .42;
+  -webkit-mask-image: radial-gradient(125% 105% at 50% 44%, #000 58%, transparent 100%);
+  mask-image: radial-gradient(125% 105% at 50% 44%, #000 58%, transparent 100%);
+}
+
+/* cantos de HUD (mira) */
+.hud-c {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  z-index: 6;
+  pointer-events: none;
+  border: 2px solid rgba(255,74,48,.5);
+}
+.hud-c.tl { top: 16px;    left: 16px;  border-right: 0; border-bottom: 0; border-radius: 5px 0 0 0; }
+.hud-c.tr { top: 16px;    right: 16px; border-left: 0;  border-bottom: 0; border-radius: 0 5px 0 0; }
+.hud-c.bl { bottom: 16px; left: 16px;  border-right: 0; border-top: 0;    border-radius: 0 0 0 5px; }
+.hud-c.br { bottom: 16px; right: 16px; border-left: 0;  border-top: 0;    border-radius: 0 0 5px 0; }
 /* respiração sutil do brilho (não pisca forte) */
 @keyframes ledBreath {
   0%, 100% { opacity: 1; }
@@ -416,15 +447,27 @@ body {
 .live-clock {
   position: relative;
   z-index: 6;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   margin-top: 8px;
   font-family: "Courier New", monospace;
   font-weight: 700;
   letter-spacing: 3px;
   font-size: 18px;
-  color: #ff7d33;
-  text-shadow: 0 0 6px rgba(255,90,40,.6);
+  color: #ff5a2a;
+  text-shadow: 0 0 8px rgba(255,80,35,.7);
 }
+/* traços de HUD flanqueando o relógio */
+.live-clock::before,
+.live-clock::after {
+  content: "";
+  width: 34px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,80,40,.6));
+}
+.live-clock::after { transform: scaleX(-1); }
 
 /* ---------------- Tipografia da placa ---------------- */
 
@@ -447,6 +490,17 @@ body {
     0 -1px 0 rgba(0,0,0,.25),
     0 3px 5px rgba(90,55,0,.28);
 }
+/* Título tem 2 modos:
+   - WIDE (padrão): "DAYS WITHOUT AN" (l1) / "RCE" (l2)  → an-inline aparece
+   - NARROW: "DAYS WITHOUT" / "AN RCE"                   → an-stacked aparece
+   troca via container query da placa. */
+.headline .an-stacked { display: none; }
+
+@container (max-width: 585px) {
+  .headline .an-inline { display: none; }
+  .headline .an-stacked { display: block; }
+}
+
 /* linha 2: "AN" (preto, menor) + "RCE" (vermelho, grande), alinhados pela base */
 .headline .l2 {
   display: flex;
@@ -565,6 +619,8 @@ body {
   letter-spacing: 1px;
   text-transform: uppercase;
   font-size: 15px;
+  white-space: nowrap;
+  flex-shrink: 0;
   color: #fff;
   background: linear-gradient(180deg, #2a2a2f 0%, #171719 100%);
   border: 1px solid #000;
