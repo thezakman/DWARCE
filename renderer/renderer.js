@@ -197,14 +197,17 @@ function applyState(s) {
   el.recordVal.textContent = s.recordDays;
 }
 
-let lastDays = -1, lastMatrixW = -1;
+let lastDays = -1, lastMatrixW = -1, lastMatrixH = -1;
 let pongActive = false;
 function renderMatrix() {
   if (pongActive) return; // o Pong controla o painel
-  const w = el.matrix.clientWidth;
-  if (state.days === lastDays && w === lastMatrixW) return;
+  const w = el.matrix.clientWidth, h = el.matrix.clientHeight;
+  // re-renderiza quando dias OU largura OU ALTURA mudam (senão o painel do Pong
+  // deixa o SVG com viewBox esticado → LEDs viram ovais)
+  if (state.days === lastDays && w === lastMatrixW && h === lastMatrixH) return;
   lastDays = state.days;
   lastMatrixW = w;
+  lastMatrixH = h;
   window.LED.renderDisplay(el.matrix, state.days);
 }
 
@@ -692,18 +695,20 @@ function startPong() {
   pongActive = true;
   document.body.classList.add('pongmode'); // painel cresce via CSS
   $('pongScore').hidden = false;
-  fitToWindow();
   toast('<span class="toast-emoji">🏓</span><span class="toast-txt"><b>PONG</b><span>mouse / ↑ ↓ &nbsp;·&nbsp; Esc to quit</span></span>', 'god');
+  // re-ajusta a escala DURANTE a transição de crescimento (senão a placa estoura a janela)
+  const grow = [0, 120, 240, 340].map((ms) => setTimeout(fitToWindow, ms));
   setTimeout(() => window.PONG.start(el.matrix, {
     input: el.panel,
     target: 5,
     onWin: () => earnAchievement('pong-master'),
     onExit: () => {
+      grow.forEach(clearTimeout);
       pongActive = false;
       document.body.classList.remove('pongmode');
       $('pongScore').hidden = true;
-      lastDays = -1; lastMatrixW = -1; renderMatrix(); // restaura o número
-      fitToWindow();
+      lastDays = -1; lastMatrixW = -1; lastMatrixH = -1; renderMatrix(); // restaura o número
+      [0, 120, 240, 340].forEach((ms) => setTimeout(fitToWindow, ms)); // re-ajusta ao encolher
     },
   }), 340); // espera o painel crescer
 }
@@ -769,6 +774,55 @@ function fortune() {
   toast(`<span class="toast-emoji">🔮</span><span class="toast-txt"><b>0xDEADBEEF</b><span>${f}</span></span>`, 'fortune');
 }
 
+// 5) digitar "matrix" → chuva de código verde (Matrix digital rain)
+function matrixRain() {
+  if (document.getElementById('matrixCanvas')) return;
+  const cv = document.createElement('canvas');
+  cv.id = 'matrixCanvas';
+  cv.style.cssText = 'position:fixed;inset:0;z-index:58;pointer-events:none;opacity:0;transition:opacity .45s ease';
+  document.body.appendChild(cv);
+  const ctx = cv.getContext('2d');
+  const resize = () => { cv.width = window.innerWidth; cv.height = window.innerHeight; };
+  resize();
+  requestAnimationFrame(() => { cv.style.opacity = '1'; });
+  const CH = 'アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF$+*<>=/¦｜╌'.split('');
+  const FS = 16;
+  let cols = Math.ceil(cv.width / FS);
+  let drops = Array.from({ length: cols }, () => (Math.random() * -60) | 0);
+  let rafId = null, stopping = false, t0 = performance.now();
+  earnAchievement('white-rabbit');
+  toast('<span class="toast-emoji">🐇</span><span class="toast-txt"><b>FOLLOW THE WHITE RABBIT</b><span>Wake up, Neo…</span></span>', 'glitch');
+  function frame(ts) {
+    ctx.fillStyle = 'rgba(0,0,0,0.075)';
+    ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.font = FS + 'px monospace';
+    if (Math.ceil(cv.width / FS) !== cols) { cols = Math.ceil(cv.width / FS); drops = Array.from({ length: cols }, () => 0); }
+    for (let i = 0; i < cols; i++) {
+      const x = i * FS, y = drops[i] * FS;
+      ctx.fillStyle = '#c8ffe0';
+      ctx.fillText(CH[(Math.random() * CH.length) | 0], x, y);
+      ctx.fillStyle = '#16d45c';
+      ctx.fillText(CH[(Math.random() * CH.length) | 0], x, y - FS);
+      if (y > cv.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+    if (ts - t0 > 8000 && !stopping) { stopMatrix(); return; }
+    if (!stopping) rafId = requestAnimationFrame(frame);
+  }
+  function stopMatrix() {
+    if (stopping) return;
+    stopping = true;
+    cv.style.opacity = '0';
+    window.removeEventListener('resize', resize);
+    window.removeEventListener('keydown', keyStop);
+    setTimeout(() => { if (rafId) cancelAnimationFrame(rafId); cv.remove(); }, 480);
+  }
+  const keyStop = (e) => { if (e.key === 'Escape') stopMatrix(); };
+  window.addEventListener('resize', resize);
+  window.addEventListener('keydown', keyStop);
+  rafId = requestAnimationFrame(frame);
+}
+
 function initEasterEggs() {
   const KONAMI = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
   let kpos = 0, typeBuf = '';
@@ -780,6 +834,7 @@ function initEasterEggs() {
       typeBuf = (typeBuf + k).slice(-6);
       if (typeBuf.endsWith('party')) { typeBuf = ''; partyMode(); }
       if (typeBuf.endsWith('pong')) { typeBuf = ''; startPong(); }
+      if (typeBuf.endsWith('matrix')) { typeBuf = ''; matrixRain(); }
     }
   });
 

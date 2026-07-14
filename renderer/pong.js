@@ -9,9 +9,11 @@
 
 (function () {
   const COLS = 42, ROWS = 22, PAD = 5;
+  const HALF = Math.floor(PAD / 2); // meia-altura REAL desenhada (células inteiras)
   let running = false, raf = null, g = null;
 
-  function clampPad(y) { return Math.max(PAD / 2, Math.min(ROWS - PAD / 2, y)); }
+  // mantém a raquete inteira dentro da grade [0, ROWS-1]
+  function clampPad(y) { return Math.max(HALF, Math.min(ROWS - 1 - HALF, y)); }
 
   function resetBall(dir) {
     g.bx = COLS / 2; g.by = ROWS / 2;

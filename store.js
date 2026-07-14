@@ -138,6 +138,7 @@ function computeStats(s, now = Date.now()) {
   return {
     total, last24h, last7d, byTopic, last7dByTopic, distinct: distinct.size,
     maxStreakBroken, maxInDay, withNote, night, weekend,
+    distinctDays: Object.keys(byDay).length,
     customCount: (s.customTopics || []).length,
   };
 }

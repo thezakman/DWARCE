@@ -128,7 +128,44 @@ const ACHIEVEMENTS = [
     en: { t: 'Well Rested', d: 'Actually take 3 vacations. Self-care!' },
     pt: { t: 'Descansado', d: 'Tire 3 férias de verdade. Se cuida!' } },
 
+  // --- mais volume / consistência / lendas ---
+  { id: 'getting-started', emoji: '🌱', check: (s) => s.total >= 5,
+    en: { t: 'Getting Started', d: '5 hits total. Warmed up.' },
+    pt: { t: 'Esquentando', d: '5 hits no total. Aquecido.' } },
+
+  { id: 'legend', emoji: '🐐', check: (s) => s.total >= 500,
+    en: { t: 'Legend', d: '500 hits total. G.O.A.T.' },
+    pt: { t: 'Lenda', d: '500 hits no total. O MELHOR.' } },
+
+  { id: 'high-roller', emoji: '🎰', check: (s) => s.maxStreakBroken >= 1337,
+    en: { t: 'High Roller', d: 'Break a 1337-day dry spell. Leet.' },
+    pt: { t: 'Figurão', d: 'Quebre uma seca de 1337 dias. Leet.' } },
+
+  { id: 'insomniac', emoji: '🌙', check: (s) => s.night >= 5,
+    en: { t: 'Insomniac', d: '5 hits after midnight. Sleep? Never heard of it.' },
+    pt: { t: 'Insone', d: '5 hits depois da meia-noite. Dormir? Nunca ouvi falar.' } },
+
+  { id: 'consistent', emoji: '📆', check: (s) => s.distinctDays >= 7,
+    en: { t: 'Consistent', d: 'Score on 7 different days.' },
+    pt: { t: 'Consistente', d: 'Pontue em 7 dias diferentes.' } },
+
+  { id: 'star-survivor', emoji: '☄️', check: (s) => (s.byTopic['shooting-star'] || 0) >= 25,
+    en: { t: 'Star Survivor', d: 'Endure 25 shooting stars. Still standing.' },
+    pt: { t: 'Sobrevivente', d: 'Aguente 25 estrelas cadentes. Ainda de pé.' } },
+
+  { id: 'full-house', emoji: '🃏', check: (s) => s.distinct >= 15,
+    en: { t: 'Full House', d: 'Score in all 15 built-in focuses.' },
+    pt: { t: 'Casa Cheia', d: 'Pontue nos 15 focos nativos.' } },
+
+  { id: 'hoarder', emoji: '🗄️', check: (s) => s.customCount >= 3,
+    en: { t: 'Hoarder', d: 'Create 3 custom focuses.' },
+    pt: { t: 'Acumulador', d: 'Crie 3 focos customizados.' } },
+
   // --- secretos (easter eggs) ---
+  { id: 'white-rabbit', emoji: '🐇', secret: true, check: () => false,
+    en: { t: 'Follow the White Rabbit', d: 'You saw the code behind it all.' },
+    pt: { t: 'Siga o Coelho Branco', d: 'Você viu o código por trás de tudo.' } },
+
   { id: 'konami', emoji: '🕹️', secret: true, check: () => false,
     en: { t: 'Old School', d: 'You know the code. ↑↑↓↓←→←→ B A' },
     pt: { t: 'Old School', d: 'Você sabe o código. ↑↑↓↓←→←→ B A' } },
