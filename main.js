@@ -38,7 +38,7 @@ function createWindow() {
     minWidth: 360,
     minHeight: 340,
     backgroundColor: '#111112',
-    title: 'Days Without RCE',
+    title: 'DWARCE',
     icon: path.join(__dirname, 'assets', 'icon.png'),
     show: false,
     webPreferences: {

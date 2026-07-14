@@ -1,6 +1,6 @@
 {
   "name": "days-without-rce",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Industrial-style safety sign that counts the days without an RCE — with switchable hacking/pentest topics.",
   "main": "main.js",
   "scripts": {

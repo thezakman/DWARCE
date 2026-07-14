@@ -86,6 +86,9 @@ const setTitle = (id, txt) => {
 // Aplica o texto/estética do tópico ativo (headline, chip, botão, modal incidente).
 function applyTopic() {
   const c = tc();
+  // título da janela reflete o foco atual (ex.: "Days Without a BUG" / "Dias Sem Férias")
+  const titleBase = lang === 'pt' ? 'Dias Sem' : 'Days Without';
+  document.title = `${titleBase}${c.article ? ' ' + c.article.toLowerCase() : ''} ${c.subject}`;
   // chip
   el.tcEmoji.textContent = c.emoji;
   el.tcName.textContent = c.subject;

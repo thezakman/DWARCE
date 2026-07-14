@@ -83,7 +83,7 @@ function setWindowsIcon(appDir) {
     if (t.platform === 'win32') setWindowsIcon(appDir);
     const base = path.basename(appDir);
     const out = `DWARCE-${VER}-${t.label}.tar.xz`;
-    execFileSync('/bin/bash', ['-c', `tar -cf - ${JSON.stringify(base)} | xz -9 -T0 -c > ${JSON.stringify(out)}`], { cwd: OUT, stdio: 'inherit' });
+    execFileSync('/bin/bash', ['-c', `tar -cf - ${JSON.stringify(base)} | xz -9e -T0 -c > ${JSON.stringify(out)}`], { cwd: OUT, stdio: 'inherit' });
     const mb = (fs.statSync(path.join(OUT, out)).size / 1048576).toFixed(0);
     console.log(`    -> dist/${out} (${mb} MB)`);
   }
