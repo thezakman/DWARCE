@@ -44,16 +44,21 @@ function renderDisplay(container, value) {
   const w = container.clientWidth, h = container.clientHeight;
   if (!w || !h) return;
 
-  // pitch (espaçamento) derivado da altura pra os dígitos ocuparem ~80% da altura
-  const pitch = Math.max(9, h * 0.82 / DH);
+  const chars = String(Math.max(0, Math.floor(value))).split('');
+  const n = chars.length;
+  const totalCols = n * DW + (n - 1) * GAP;
+
+  // pitch limitado pela ALTURA (dígitos ~80% da altura) E pela LARGURA
+  // (o número tem que caber com 1 coluna de folga de cada lado)
+  const pitchH = h * 0.82 / DH;
+  const pitchW = w / (totalCols + 2);
+  const pitch = Math.max(7, Math.min(pitchH, pitchW));
+
   const cols = Math.floor(w / pitch);
   const rows = Math.floor(h / pitch);
   const offX = (w - cols * pitch) / 2 + pitch / 2;
   const offY = (h - rows * pitch) / 2 + pitch / 2;
 
-  const chars = String(Math.max(0, Math.floor(value))).split('');
-  const n = chars.length;
-  const totalCols = n * DW + (n - 1) * GAP;
   const startCol = Math.round((cols - totalCols) / 2);
   const startRow = Math.max(0, Math.round((rows - DH) / 2));
 
