@@ -90,11 +90,13 @@ body {
 
 .sign {
   position: relative;
-  width: 760px;
+  /* largura fluida: encolhe reduzindo margem/espaço vazio, conteúdo em tamanho fixo.
+     mín. 468px (abaixo disso o wrapper escala uniformemente). */
+  width: clamp(468px, calc(100vw - 28px), 760px);
   background:
     radial-gradient(135% 115% at 32% 6%, #ffd75e 0%, #ffc22e 34%, var(--yellow) 58%, var(--yellow-deep) 100%);
   border-radius: 18px;
-  padding: 22px 24px 18px;
+  padding: 18px 24px 14px;
   box-shadow:
     0 44px 90px rgba(0,0,0,.62),
     0 18px 34px rgba(0,0,0,.5),
@@ -274,8 +276,8 @@ body {
   background:
     radial-gradient(120% 90% at 50% 30%, #17110f 0%, #0c0908 55%, #040303 100%);
   border-radius: 14px;
-  padding: 22px 26px 16px;
-  margin: 6px 4px 14px;
+  padding: 18px 26px 12px;
+  margin: 4px 4px 10px;
   box-shadow:
     inset 0 0 0 3px rgba(255,255,255,.92),   /* borda branca fina (Imagem 1) */
     inset 0 0 0 6px #000,
@@ -459,7 +461,7 @@ body {
 }
 
 .record {
-  margin: 14px auto 4px;
+  margin: 10px auto 4px;
   width: fit-content;
   display: flex;
   flex-direction: column;
@@ -493,7 +495,7 @@ body {
 .rec-val b { font-size: 32px; }
 
 .tagline {
-  margin: 13px 4px 2px;
+  margin: 9px 4px 2px;
   text-align: center;
   color: var(--ink-soft);
   font-size: 13px;
@@ -510,7 +512,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 /* linha de ícones flat-line discretos */
@@ -521,7 +523,7 @@ body {
   gap: 20px;
   justify-content: center;
   align-items: center;
-  margin-top: 12px;
+  margin-top: 9px;
 }
 .icon-btn {
   display: grid;
@@ -698,7 +700,7 @@ body {
 /* ---------------- Veredito (zoação por ferrugem) ---------------- */
 
 .verdict {
-  margin: 12px auto 0;
+  margin: 9px auto 0;
   width: fit-content;
   max-width: 92%;
   text-align: center;
@@ -707,7 +709,7 @@ body {
   letter-spacing: .5px;
   font-size: 26px;
   text-transform: uppercase;
-  padding: 3px 14px;
+  padding: 2px 14px;
   border-radius: 6px;
   color: var(--ink);
   transition: color .3s ease;
