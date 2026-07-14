@@ -27,6 +27,10 @@ title, a live counter, a roast verdict, a "longest dry spell" record, an RCE log
 
 ![Dias Sem Um RCE — Português](assets/preview-pt.png)
 
+*Pick your focus — 15 built-in topics, each with its own dry spell, record and log:*
+
+![Choose your focus — topic picker](assets/preview-topics.png)
+
 ## Download
 
 Grab a prebuilt binary from the [**Releases**](https://github.com/thezakman/DWARCE/releases/latest)
