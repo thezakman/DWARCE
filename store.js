@@ -112,7 +112,8 @@ function topicStats(s) {
 function computeStats(s, now = Date.now()) {
   const WEEK = 7 * DAY_MS;
   let total = 0, last24h = 0, last7d = 0, maxStreakBroken = 0;
-  const byTopic = {}, last7dByTopic = {}, distinct = new Set();
+  let withNote = 0, night = 0, weekend = 0;
+  const byTopic = {}, last7dByTopic = {}, distinct = new Set(), byDay = {};
   for (const id of Object.keys(s.topics)) {
     const h = s.topics[id].history || [];
     if (h.length) distinct.add(id);
@@ -123,11 +124,22 @@ function computeStats(s, now = Date.now()) {
       if (!isNaN(t)) {
         if (now - t <= DAY_MS) last24h++;
         if (now - t <= WEEK) { last7d++; last7dByTopic[id] = (last7dByTopic[id] || 0) + 1; }
+        const d = new Date(t);
+        const key = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+        byDay[key] = (byDay[key] || 0) + 1;
+        const hr = d.getHours(); if (hr < 5) night++;
+        const dow = d.getDay(); if (dow === 0 || dow === 6) weekend++;
       }
+      if (e && e.note && String(e.note).trim()) withNote++;
       if (typeof e.streakDays === 'number' && e.streakDays > maxStreakBroken) maxStreakBroken = e.streakDays;
     }
   }
-  return { total, last24h, last7d, byTopic, last7dByTopic, distinct: distinct.size, maxStreakBroken };
+  const maxInDay = Object.values(byDay).reduce((m, v) => Math.max(m, v), 0);
+  return {
+    total, last24h, last7d, byTopic, last7dByTopic, distinct: distinct.size,
+    maxStreakBroken, maxInDay, withNote, night, weekend,
+    customCount: (s.customTopics || []).length,
+  };
 }
 
 // Projeção enviada ao renderer: board ativo + metadados de tópicos.

@@ -1081,3 +1081,26 @@ body.godmode .matrix-svg { animation: rainbow 1.8s linear infinite; }
 /* tech-text clicável (0xDEADBEEF) */
 .tech.egg { pointer-events: auto; cursor: pointer; transition: color .15s ease; }
 .tech.egg:hover { color: rgba(255,120,60,.75); }
+
+/* ---------------- Pong (easter egg) ---------------- */
+
+.panel { transition: height .3s ease; }
+body.pongmode .panel { height: 360px; cursor: none; }
+body.pongmode .tech,
+body.pongmode .live-clock,
+body.pongmode .panel-dust,
+body.pongmode .scanline { opacity: 0; }
+
+.pong-score {
+  position: absolute;
+  left: 0; right: 0; bottom: 10px;
+  z-index: 6;
+  text-align: center;
+  font-family: "Courier New", monospace;
+  font-weight: 700;
+  letter-spacing: 8px;
+  font-size: 20px;
+  color: #ff5a2a;
+  text-shadow: 0 0 8px rgba(255,80,35,.7);
+  pointer-events: none;
+}

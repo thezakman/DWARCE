@@ -198,7 +198,9 @@ function applyState(s) {
 }
 
 let lastDays = -1, lastMatrixW = -1;
+let pongActive = false;
 function renderMatrix() {
+  if (pongActive) return; // o Pong controla o painel
   const w = el.matrix.clientWidth;
   if (state.days === lastDays && w === lastMatrixW) return;
   lastDays = state.days;
@@ -684,6 +686,28 @@ function partyMode() {
   toast('<span class="toast-emoji">🎉</span><span class="toast-txt"><b>PARTY MODE</b><span>🥳🎊🎉</span></span>', 'party');
 }
 
+// bônus) digitar "pong" → Pong jogável no painel de LED (o painel cresce)
+function startPong() {
+  if (!window.PONG || window.PONG.isRunning()) return;
+  pongActive = true;
+  document.body.classList.add('pongmode'); // painel cresce via CSS
+  $('pongScore').hidden = false;
+  fitToWindow();
+  toast('<span class="toast-emoji">🏓</span><span class="toast-txt"><b>PONG</b><span>mouse / ↑ ↓ &nbsp;·&nbsp; Esc to quit</span></span>', 'god');
+  setTimeout(() => window.PONG.start(el.matrix, {
+    input: el.panel,
+    target: 5,
+    onWin: () => earnAchievement('pong-master'),
+    onExit: () => {
+      pongActive = false;
+      document.body.classList.remove('pongmode');
+      $('pongScore').hidden = true;
+      lastDays = -1; lastMatrixW = -1; renderMatrix(); // restaura o número
+      fitToWindow();
+    },
+  }), 340); // espera o painel crescer
+}
+
 // 4) clicar no tech-text "0xDEADBEEF" → fortune hacker aleatória
 const FORTUNES = {
   en: [
@@ -694,6 +718,23 @@ const FORTUNES = {
     "chmod 777 and pray. 🙏",
     "It works on my machine. 🤷",
     "rm -rf / ... just kidding. (unless?)",
+    "password123 — the choice of champions.",
+    "Have you tried turning the firewall off and on again?",
+    "0 days since the last 'quick fix' broke prod.",
+    "Social engineering: because there's no patch for humans.",
+    "git push --force and disappear.",
+    "The 'S' in IoT stands for Security.",
+    "I don't always test my exploits, but when I do, it's in prod.",
+    "Real hackers count from 0.",
+    "Backups are for people who don't believe in themselves.",
+    "It's not paranoia if the packets really are after you.",
+    "Any sufficiently advanced 'user error' is indistinguishable from a 0day.",
+    "printf('%s','still not patched'); 🩹",
+    "Regex: now you have two problems.",
+    "The cake is a lie, but the shell is real.",
+    "Encryption is like a seatbelt for your secrets.",
+    "curl | sudo bash — what could possibly go wrong?",
+    "TODO: remove before commit. (committed anyway)",
   ],
   pt: [
     'Não existe nuvem — é só o computador de outra pessoa.',
@@ -703,6 +744,23 @@ const FORTUNES = {
     'chmod 777 e reza. 🙏',
     'Na minha máquina funciona. 🤷',
     'rm -rf / ... brincadeira. (será?)',
+    'senha123 — a escolha dos campeões.',
+    'Já tentou desligar e ligar o firewall?',
+    '0 dias desde que o último "ajuste rápido" quebrou a prod.',
+    'Engenharia social: porque não tem patch pra humano.',
+    'git push --force e some.',
+    'O "S" de IoT é de Segurança.',
+    'Nem sempre testo meus exploits, mas quando testo, é na prod.',
+    'Hacker de verdade conta a partir do 0.',
+    'Backup é pra quem não acredita em si mesmo.',
+    'Não é paranoia se os pacotes realmente estão te seguindo.',
+    'Todo "erro do usuário" avançado é indistinguível de um 0day.',
+    'printf("%s","ainda sem patch"); 🩹',
+    'Regex: agora você tem dois problemas.',
+    'O bolo é mentira, mas a shell é real.',
+    'Criptografia é o cinto de segurança dos seus segredos.',
+    'curl | sudo bash — o que poderia dar errado?',
+    'TODO: remover antes do commit. (commitado assim mesmo)',
   ],
 };
 function fortune() {
@@ -721,12 +779,14 @@ function initEasterEggs() {
     if (/^[a-z]$/.test(k)) {
       typeBuf = (typeBuf + k).slice(-6);
       if (typeBuf.endsWith('party')) { typeBuf = ''; partyMode(); }
+      if (typeBuf.endsWith('pong')) { typeBuf = ''; startPong(); }
     }
   });
 
   // 7 cliques no painel
   let clicks = 0, ct = null;
   el.panel.addEventListener('click', () => {
+    if (pongActive) return;
     clicks++;
     clearTimeout(ct);
     ct = setTimeout(() => { clicks = 0; }, 1600);
