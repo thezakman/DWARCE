@@ -4,15 +4,21 @@
  * ================================================================ */
 
 :root {
-  --yellow: #f4b400;
-  --yellow-deep: #e09e00;
-  --ink: #171310;
-  --ink-soft: #2a231c;
+  --yellow: #f5b301;
+  --yellow-deep: #b98200;
+  --ink: #0c0d0f;
+  --ink-soft: #b9bcc4;
   --led-on: #ff2b21;
   --led-on-2: #ff5a3c;
   --led-off: #47110d;
   --panel-bg: #0a0807;
-  --danger: #d61f1f;
+  --danger: #e01e1e;
+  --carbon: #131417;
+  --carbon-2: #0b0c0e;
+  --steel: #23262b;
+  --steel-hi: #3a3e46;
+  --edge-hi: rgba(255,255,255,.14);
+  --edge-lo: rgba(0,0,0,.7);
 }
 
 * { box-sizing: border-box; }
@@ -95,18 +101,30 @@ body {
   width: clamp(468px, calc(100vw - 28px), 760px);
   container-type: inline-size;   /* pra alternar o layout do título por largura */
   background:
-    radial-gradient(135% 115% at 32% 6%, #ffd75e 0%, #ffc22e 34%, var(--yellow) 58%, var(--yellow-deep) 100%);
-  border-radius: 18px;
-  padding: 18px 24px 14px;
+    radial-gradient(120% 90% at 50% 0%, #1b1d22 0%, #131418 45%, #0b0c0e 100%);
+  border-radius: 16px;
+  padding: 16px 40px 16px;
   box-shadow:
-    0 44px 90px rgba(0,0,0,.62),
-    0 18px 34px rgba(0,0,0,.5),
-    0 2px 0 rgba(255,255,255,.12),
-    inset 0 3px 1px rgba(255,255,255,.32),
-    inset 0 -10px 28px rgba(120,70,0,.4);
+    0 44px 90px rgba(0,0,0,.7),
+    0 18px 34px rgba(0,0,0,.55),
+    inset 0 0 0 2px #000;
   isolation: isolate;
   animation: signSway 9s ease-in-out infinite;
   transform-origin: 50% -40px;
+}
+/* placa de circuito sutil no fundo escuro */
+.sign > .sign-inner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .5;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 26px, rgba(120,140,90,.05) 26px 27px),
+    repeating-linear-gradient(90deg, transparent 0 34px, rgba(120,140,90,.04) 34px 35px);
+  -webkit-mask-image: radial-gradient(120% 100% at 50% 40%, #000 55%, transparent 100%);
+  mask-image: radial-gradient(120% 100% at 50% 40%, #000 55%, transparent 100%);
 }
 
 /* leve balanço, como placa pendurada */
@@ -115,110 +133,50 @@ body {
   50% { transform: rotate(0.25deg); }
 }
 
-/* ---- moldura preta gasta (única camada distorcida) ---- */
+/* ---- moldura industrial amarela (anéis concêntricos + bisel) ---- */
 .frame {
   position: absolute;
   inset: 0;
-  border-radius: 18px;
+  border-radius: 16px;
   pointer-events: none;
   z-index: 5;
-  outline: 9px solid var(--ink);
-  outline-offset: -3px;
-  filter: url(#grunge);
+  box-shadow:
+    inset 0 0 0 2px #000,                       /* borda externa preta */
+    inset 0 0 0 14px var(--yellow),             /* corpo amarelo */
+    inset 0 0 0 15px rgba(0,0,0,.65),           /* linha interna preta */
+    inset 0 3px 2px -1px rgba(255,255,255,.5),  /* bisel: luz no topo */
+    inset 0 -5px 4px -1px rgba(0,0,0,.55),      /* bisel: sombra embaixo */
+    inset 0 0 0 20px rgba(0,0,0,.0);
 }
+/* gradiente metálico por cima do amarelo da moldura */
 .frame::before {
   content: "";
   position: absolute;
-  inset: 11px;
-  border: 4px solid var(--ink);
-  border-radius: 12px;
-  opacity: .9;
-}
-/* tinta descascando nos cantos (chips pretos) */
-.frame::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 18px;
+  inset: 2px;
+  border-radius: 15px;
+  border: 12px solid transparent;
   background:
-    radial-gradient(circle at 0 0, var(--ink) 0 10px, transparent 11px),
-    radial-gradient(circle at 100% 0, var(--ink) 0 8px, transparent 9px),
-    radial-gradient(circle at 0 100%, var(--ink) 0 12px, transparent 13px),
-    radial-gradient(circle at 100% 100%, var(--ink) 0 9px, transparent 10px),
-    radial-gradient(circle at 22% 0, var(--ink) 0 3px, transparent 4px),
-    radial-gradient(circle at 74% 100%, var(--ink) 0 4px, transparent 5px);
-  opacity: .5;
-  filter: url(#grunge);
+    linear-gradient(160deg, rgba(255,255,255,.35), rgba(255,255,255,0) 30%, rgba(0,0,0,.28) 100%) border-box;
+  -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: .8;
 }
 
-/* ---- manchas de ferrugem grandes ---- */
-.rust {
+/* ---- listras de hazard nas laterais ---- */
+.hazard {
   position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  pointer-events: none;
-  z-index: 2;
-  mix-blend-mode: multiply;
-  opacity: .32;
-  background:
-    radial-gradient(closest-side, #7a3b06 0%, #7a3b06 40%, transparent 70%) 8% 88% / 160px 120px no-repeat,
-    radial-gradient(closest-side, #6b3405 0%, #6b3405 35%, transparent 70%) 94% 14% / 130px 150px no-repeat,
-    radial-gradient(closest-side, #5c2c04 0%, transparent 70%) 50% 4% / 220px 60px no-repeat;
-}
-.rust::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  background: #5a2a03;
-  filter: url(#rust);
-  opacity: .5;
-}
-
-/* textura de desgaste: sombreado nos cantos */
-.wear {
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  pointer-events: none;
-  z-index: 3;
-  mix-blend-mode: multiply;
-  opacity: .55;
-  background:
-    radial-gradient(65% 45% at 10% 6%, rgba(0,0,0,.4), transparent 60%),
-    radial-gradient(55% 45% at 93% 10%, rgba(0,0,0,.34), transparent 55%),
-    radial-gradient(75% 55% at 90% 97%, rgba(0,0,0,.4), transparent 60%),
-    radial-gradient(55% 45% at 5% 92%, rgba(0,0,0,.34), transparent 55%),
-    radial-gradient(120% 100% at 50% 120%, rgba(0,0,0,.28), transparent 55%);
-}
-/* respingos finos escuros */
-.wear::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 12px;
-  filter: url(#rough);
-  opacity: .16;
-  background: #000;
-}
-
-/* ---- arranhões ---- */
-.scratches {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: 40px;
+  bottom: 86px;
+  width: 15px;
   z-index: 4;
   pointer-events: none;
-  opacity: .5;
-  mix-blend-mode: multiply;
+  background: repeating-linear-gradient(-45deg, var(--yellow) 0 9px, #101010 9px 18px);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), inset 0 2px 4px rgba(0,0,0,.5);
+  opacity: .92;
 }
-.scratches path {
-  fill: none;
-  stroke: rgba(20,12,4,.55);
-  stroke-width: 1.2;
-  stroke-linecap: round;
-}
+.hazard.hz-l { left: 18px; }
+.hazard.hz-r { right: 18px; }
 
 /* ---- grão de filme (sutil, animado) ---- */
 .grain {
@@ -241,28 +199,27 @@ body {
 /* ---- parafusos nos cantos ---- */
 .screw {
   position: absolute;
-  width: 15px;
-  height: 15px;
+  width: 20px;
+  height: 20px;
   z-index: 7;
-  border-radius: 50%;
+  clip-path: polygon(25% 2%, 75% 2%, 100% 50%, 75% 98%, 25% 98%, 0 50%);
   background:
-    radial-gradient(circle at 35% 30%, #dfe2e6 0%, #9aa0a6 45%, #4c5157 100%);
+    radial-gradient(circle at 38% 30%, #2b2d31 0%, #191b1e 55%, #0a0b0c 100%);
   box-shadow:
-    inset 0 1px 1px rgba(255,255,255,.6),
-    inset 0 -2px 3px rgba(0,0,0,.6),
-    0 1px 2px rgba(0,0,0,.7);
+    inset 0 1px 1px rgba(255,255,255,.25),
+    inset 0 -2px 3px rgba(0,0,0,.7);
 }
-.screw::after {
+.screw::before {
   content: "";
   position: absolute;
-  inset: 3px;
-  border-radius: 50%;
-  background: linear-gradient(var(--sa, 55deg), transparent 44%, rgba(0,0,0,.55) 44% 56%, transparent 56%);
+  inset: 4px;
+  clip-path: polygon(25% 2%, 75% 2%, 100% 50%, 75% 98%, 25% 98%, 0 50%);
+  background: radial-gradient(circle at 40% 32%, #3a3d43 0%, #212327 60%, #121316 100%);
 }
-.screw.tl { top: 15px; left: 15px; --sa: 40deg; }
-.screw.tr { top: 15px; right: 15px; --sa: 125deg; }
-.screw.bl { bottom: 15px; left: 15px; --sa: 100deg; }
-.screw.br { bottom: 15px; right: 15px; --sa: 20deg; }
+.screw.tl { top: 11px; left: 11px; }
+.screw.tr { top: 11px; right: 11px; }
+.screw.bl { bottom: 11px; left: 11px; }
+.screw.br { bottom: 11px; right: 11px; }
 
 .sign-inner {
   position: relative;
@@ -281,11 +238,13 @@ body {
   padding: 0;
   margin: 4px 4px 10px;
   box-shadow:
-    inset 0 0 0 3px rgba(255,255,255,.92),   /* borda branca fina (Imagem 1) */
-    inset 0 0 0 6px #000,
+    inset 0 0 0 1px #4b4f57,                  /* bisel de aço claro */
+    inset 0 0 0 5px #1a1c20,                  /* corpo do bezel */
+    inset 0 0 0 7px #000,                      /* interior preto */
     inset 0 12px 44px rgba(0,0,0,.92),
     inset 0 -6px 20px rgba(0,0,0,.7),
-    0 8px 18px rgba(0,0,0,.55);
+    0 1px 0 rgba(255,255,255,.06),
+    0 8px 18px rgba(0,0,0,.6);
   overflow: hidden;
 }
 
@@ -374,6 +333,20 @@ body {
   46%, 100% { transform: translateY(260px); opacity: 0; }
 }
 
+/* tech-text decorativo no display */
+.tech {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  font-family: "Courier New", monospace;
+  font-size: 8px;
+  line-height: 1.5;
+  letter-spacing: 1px;
+  color: rgba(255,70,45,.32);
+}
+.tech-bl { left: 22px; bottom: 20px; }
+.tech-tr { right: 22px; top: 20px; text-align: right; }
+
 /* cantos de HUD (mira) */
 .hud-c {
   position: absolute;
@@ -440,15 +413,18 @@ body {
   line-height: .9;
   text-transform: uppercase;
 }
-.headline .l1 {
+/* "DIAS SEM UM" / "AN" — cromado/prata escovado */
+.headline .l1,
+.headline .an {
   display: block;
   font-size: 56px;
   letter-spacing: .5px;
-  /* relevo estampado no metal */
-  text-shadow:
-    0 1px 0 rgba(255,255,255,.28),
-    0 -1px 0 rgba(0,0,0,.25),
-    0 3px 5px rgba(90,55,0,.28);
+  background: linear-gradient(180deg, #ffffff 0%, #cfd4da 40%, #7c828b 52%, #eef1f4 64%, #9aa0a8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1px rgba(0,0,0,.4);
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,.6));
 }
 /* Título tem 2 modos:
    - WIDE (padrão): "DAYS WITHOUT AN" (l1) / "RCE" (l2)  → an-inline aparece
@@ -469,70 +445,82 @@ body {
   gap: 14px;
   line-height: 1;
 }
-.headline .an {
-  font-size: 50px;
-  letter-spacing: .5px;
-  color: var(--ink);
-  text-shadow:
-    0 1px 0 rgba(255,255,255,.28),
-    0 -1px 0 rgba(0,0,0,.25),
-    0 3px 5px rgba(90,55,0,.28);
-}
+.headline .an { font-size: 50px; }
+
+/* "RCE" — vermelho metálico 3D */
 .headline .rce {
   font-size: 104px;
   letter-spacing: 1px;
   color: var(--danger);
-  background: linear-gradient(180deg, #ff4132 0%, var(--danger) 55%, #a81414 100%);
+  background: linear-gradient(180deg, #ff6a58 0%, #ef2a24 40%, #9c0f0f 74%, #d21a1a 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 1.5px rgba(50,0,0,.45);
-  filter: drop-shadow(0 2px 1px rgba(0,0,0,.35)) drop-shadow(0 4px 8px rgba(150,10,0,.3));
+  -webkit-text-stroke: 2px rgba(20,0,0,.55);
+  filter:
+    drop-shadow(0 1px 0 rgba(255,150,140,.4))
+    drop-shadow(0 3px 2px rgba(0,0,0,.5))
+    drop-shadow(0 6px 14px rgba(190,15,10,.4));
 }
 
+/* selo de recorde — placa de aço escura com hex-mesh e estrelas */
 .record {
   margin: 10px auto 4px;
   width: fit-content;
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: var(--ink);
+  color: #cfd3da;
   background:
-    linear-gradient(180deg, rgba(0,0,0,.16), rgba(0,0,0,.04));
-  border: 3px solid var(--ink);
-  border-radius: 9px;
-  padding: 7px 22px 8px;
-  transform: rotate(-1.1deg);
+    radial-gradient(circle, rgba(255,255,255,.035) 0 1px, transparent 1.5px) 0 0 / 7px 7px,
+    linear-gradient(180deg, #1b1d21 0%, #0e0f12 100%);
+  border: 2px solid #40444c;
+  border-radius: 7px;
+  padding: 6px 30px 8px;
   box-shadow:
-    inset 0 2px 5px rgba(0,0,0,.28),
-    inset 0 -1px 0 rgba(255,255,255,.22),
-    0 1px 0 rgba(255,255,255,.2);
+    inset 0 1px 0 rgba(255,255,255,.1),
+    inset 0 0 0 1px #000,
+    0 3px 8px rgba(0,0,0,.55);
 }
 .rec-label {
   font-family: "Arial Narrow", Impact, sans-serif;
   font-weight: 700;
   font-size: 12px;
   letter-spacing: 4px;
-  opacity: .82;
+  color: var(--yellow);
+}
+.rec-label::before, .rec-label::after {
+  content: "★";
+  margin: 0 9px;
+  font-size: 11px;
+  color: var(--yellow);
+  vertical-align: 1px;
 }
 .rec-val {
   font-family: "Haettenschweiler", "Impact", "Arial Narrow", sans-serif;
   font-weight: 800;
   font-size: 27px;
   letter-spacing: 1px;
-  text-shadow: 0 1px 0 rgba(255,255,255,.22);
+  background: linear-gradient(180deg, #ffffff 0%, #cfd4da 45%, #868c95 55%, #e8ebee 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 .rec-val b { font-size: 32px; }
 
 .tagline {
-  margin: 9px 4px 2px;
+  margin: 10px 4px 2px;
   text-align: center;
-  color: var(--ink-soft);
+  color: #aeb2ba;
   font-size: 13px;
-  font-style: italic;
-  opacity: .8;
 }
-.tagline b { font-style: normal; font-weight: 800; }
+.tagline::before {
+  content: "🛡";
+  margin-right: 7px;
+  filter: hue-rotate(5deg) saturate(1.2);
+  opacity: .9;
+}
+.tagline b { font-weight: 800; color: var(--yellow); }
 
 /* ---------------- Ações ---------------- */
 
@@ -555,23 +543,23 @@ body {
   align-items: center;
   margin-top: 9px;
 }
+/* ícones flat line amarelos — SEM shape de botão (nada de caixa) */
 .icon-btn {
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
+  width: 30px;
+  height: 30px;
   padding: 0;
   border: 0;
-  border-radius: 10px;
-  background: transparent;
-  color: rgba(23,16,6,.5);
+  background: none;
+  color: var(--yellow);
   cursor: pointer;
-  transition: color .16s ease, background .16s ease, transform .1s ease;
+  transition: color .16s ease, transform .1s ease;
 }
-.icon-btn:hover { color: rgba(23,16,6,.95); background: rgba(0,0,0,.07); }
+.icon-btn:hover { color: #fff; }
 .icon-btn:active { transform: translateY(1px); }
-.icon-btn.muted { color: rgba(180,20,17,.7); }
-.icon-btn .ico { width: 24px; height: 24px; display: block; }
+.icon-btn.muted { color: rgba(255,120,100,.85); }
+.icon-btn .ico { width: 21px; height: 21px; display: block; }
 
 .btn {
   font-family: "Arial Narrow", Impact, sans-serif;
@@ -611,21 +599,22 @@ body {
 .btn.danger:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 3px 0 rgba(90,0,0,.7), 0 10px 26px rgba(255,50,30,.55); }
 .btn.danger .boom { filter: drop-shadow(0 0 4px rgba(255,210,0,.9)); }
 
-/* botão de "pegar um RCE" — vermelho (combina com a placa) */
+/* botão de "pegar um RCE" — vermelho tático glossy */
 .btn.win {
-  background: linear-gradient(180deg, #ff4a3c 0%, #e0261d 55%, #b81411 100%);
-  border-color: #5c0000;
+  background: linear-gradient(180deg, #ff6152 0%, #e42320 46%, #9c0f0f 100%);
+  border: 1px solid #400;
   color: #fff;
   font-size: 17px;
-  padding: 13px 24px;
-  text-shadow: 0 1px 1px rgba(0,0,0,.35);
+  padding: 13px 26px;
+  text-shadow: 0 1px 1px rgba(0,0,0,.5);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.35),
-    0 3px 0 rgba(90,0,0,.7),
-    0 8px 20px rgba(220,30,20,.4);
+    inset 0 1px 0 rgba(255,255,255,.55),
+    inset 0 0 0 1px rgba(120,0,0,.6),
+    0 3px 0 #5a0000,
+    0 9px 22px rgba(224,30,30,.45);
 }
-.btn.win:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 3px 0 rgba(90,0,0,.7), 0 10px 26px rgba(255,50,30,.55); }
-.btn.win .boom { filter: drop-shadow(0 0 4px rgba(255,210,0,.9)); }
+.btn.win:hover { filter: brightness(1.08); box-shadow: inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 0 1px rgba(120,0,0,.6), 0 3px 0 #5a0000, 0 12px 30px rgba(255,50,30,.6); }
+.btn.win .boom { filter: drop-shadow(0 0 5px rgba(255,220,60,.95)); }
 .btn.primary { background: linear-gradient(180deg, #37a24d, #1f6e30); border-color:#0c3d18; }
 .btn.ghost { background: linear-gradient(180deg, #2b2b24, #201f18); color: #f4d47a; }
 .btn.icon { font-size: 18px; padding: 11px 13px; }
