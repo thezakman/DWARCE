@@ -10,7 +10,7 @@
   --ink-soft: #2a231c;
   --led-on: #ff2b21;
   --led-on-2: #ff5a3c;
-  --led-off: #360a08;
+  --led-off: #47110d;
   --panel-bg: #0a0807;
   --danger: #d61f1f;
 }
@@ -71,14 +71,26 @@ body {
   height: 100vh;
   display: grid;
   place-items: center;
-  padding: 30px;
+  padding: 20px;
+  overflow: hidden;
+}
+
+/* wrapper que escala a placa inteira pra caber na janela (responsivo).
+   absoluto + translate(-50%,-50%) garante centralização em qualquer escala. */
+.sign-scaler {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center center;
+  transform: translate(-50%, -50%) scale(1);
+  will-change: transform;
 }
 
 /* ---------------- Placa amarela (moldura grunge) ---------------- */
 
 .sign {
   position: relative;
-  width: min(760px, 92vw);
+  width: 760px;
   background:
     radial-gradient(135% 115% at 32% 6%, #ffd75e 0%, #ffc22e 34%, var(--yellow) 58%, var(--yellow-deep) 100%);
   border-radius: 18px;
@@ -376,10 +388,11 @@ body {
 }
 
 .digit g.on .led {
-  fill: var(--led-on);
+  fill: url(#ledGrad);
   filter:
-    drop-shadow(0 0 2px var(--led-on-2))
-    drop-shadow(0 0 6px rgba(255,43,33,.85));
+    drop-shadow(0 0 1.5px rgba(255,180,120,.9))
+    drop-shadow(0 0 5px rgba(255,60,30,.9))
+    drop-shadow(0 0 11px rgba(255,30,15,.55));
   animation: ledBreath 4.2s ease-in-out infinite;
 }
 /* respiração sutil do brilho (não pisca forte) */
@@ -424,7 +437,7 @@ body {
 }
 .headline .l1 {
   display: block;
-  font-size: clamp(32px, 6.8vw, 56px);
+  font-size: 56px;
   letter-spacing: .5px;
   /* relevo estampado no metal */
   text-shadow:
@@ -434,7 +447,7 @@ body {
 }
 .headline .l2 {
   display: block;
-  font-size: clamp(56px, 12.5vw, 104px);
+  font-size: 104px;
   letter-spacing: 1px;
   color: var(--danger);
   background: linear-gradient(180deg, #ff4132 0%, var(--danger) 55%, #a81414 100%);
@@ -495,12 +508,38 @@ body {
   position: relative;
   z-index: 9;
   display: flex;
-  gap: 10px;
   justify-content: center;
   align-items: center;
-  margin-top: 14px;
-  flex-wrap: wrap;
+  margin-top: 16px;
 }
+
+/* linha de ícones flat-line discretos */
+.tools {
+  position: relative;
+  z-index: 9;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 12px;
+}
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(23,16,6,.5);
+  cursor: pointer;
+  transition: color .16s ease, background .16s ease, transform .1s ease;
+}
+.icon-btn:hover { color: rgba(23,16,6,.95); background: rgba(0,0,0,.07); }
+.icon-btn:active { transform: translateY(1px); }
+.icon-btn.muted { color: rgba(180,20,17,.7); }
+.icon-btn .ico { width: 24px; height: 24px; display: block; }
 
 .btn {
   font-family: "Arial Narrow", Impact, sans-serif;
@@ -666,7 +705,7 @@ body {
   font-family: "Haettenschweiler", "Impact", "Arial Narrow", sans-serif;
   font-weight: 800;
   letter-spacing: .5px;
-  font-size: clamp(18px, 3.6vw, 26px);
+  font-size: 26px;
   text-transform: uppercase;
   padding: 3px 14px;
   border-radius: 6px;

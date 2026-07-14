@@ -42,6 +42,13 @@
           values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.6 1.35"/>
         <feComposite operator="in" in2="SourceGraphic"/>
       </filter>
+      <!-- LED aceso com cara de lâmpada (centro quente → borda vermelha) -->
+      <radialGradient id="ledGrad" cx="40%" cy="36%" r="68%">
+        <stop offset="0%" stop-color="#ffe9cf"/>
+        <stop offset="28%" stop-color="#ff7a45"/>
+        <stop offset="70%" stop-color="#f2261a"/>
+        <stop offset="100%" stop-color="#c11710"/>
+      </radialGradient>
     </defs>
   </svg>
 
@@ -53,6 +60,7 @@
   </div>
 
   <main class="stage">
+   <div class="sign-scaler" id="signScaler">
     <div class="sign" id="sign">
       <!-- moldura preta gasta (única camada com distorção) -->
       <div class="frame" aria-hidden="true"></div>
@@ -102,16 +110,32 @@
         <div class="tagline" id="tagline"></div>
       </div>
 
-      <!-- Barra de ações -->
+      <!-- CTA principal centralizado -->
       <div class="actions">
         <button class="btn win" id="btnIncident" title="Você pegou um RCE! (zera a ferrugem)">
           <span class="boom">💥</span> <span id="btnIncidentTxt">POPPED AN RCE!</span>
         </button>
-        <button class="btn ghost" id="btnHistory" title="Histórico de incidentes">📜 <span id="btnHistoryTxt">HISTORY</span></button>
-        <button class="btn ghost" id="btnEdit" title="Editar valores">⚙️ <span id="btnEditTxt">ADJUST</span></button>
-        <button class="btn icon" id="btnMute" title="Ligar/desligar som">🔊</button>
+      </div>
+
+      <!-- ações secundárias: ícones flat-line discretos -->
+      <div class="tools">
+        <button class="icon-btn" id="btnHistory" aria-label="History" title="History">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3.5 9.5A9 9 0 1 1 3.2 13.4"/>
+            <polyline points="3.2 4.5 3.2 9.5 8.2 9.5"/>
+            <polyline points="12 7.5 12 12 15.2 13.8"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="btnEdit" aria-label="Adjust" title="Adjust">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="8" x2="20" y2="8"/><circle cx="9" cy="8" r="2.4"/>
+            <line x1="4" y1="16" x2="20" y2="16"/><circle cx="15" cy="16" r="2.4"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="btnMute" aria-label="Sound" title="Sound"></button>
       </div>
     </div>
+   </div>
   </main>
 
   <!-- Overlay de comemoração + confete -->

@@ -40,8 +40,9 @@ const I18N = {
       : n <= 99 ? { text: 'seriously rusty', cls: 'rusty' }
       : { text: 'not a hacker anymore? 💀', cls: 'washed' },
     btnIncident: 'POPPED AN RCE!',
-    btnHistory: 'HISTORY',
-    btnEdit: 'ADJUST',
+    btnHistory: 'History',
+    btnEdit: 'Adjust',
+    sound: 'Sound',
     imTitle: '🎉 Nice pop!',
     imDesc: 'Respect. The rust counter resets to zero. What did you pop? (optional)',
     imPlaceholder: 'CVE-2026-XXXX / target / service...',
@@ -72,8 +73,9 @@ const I18N = {
       : n <= 99 ? { text: 'enferrujando feio', cls: 'rusty' }
       : { text: 'não é mais hacker? 💀', cls: 'washed' },
     btnIncident: 'PEGUEI UM RCE!',
-    btnHistory: 'HISTÓRICO',
-    btnEdit: 'AJUSTAR',
+    btnHistory: 'Histórico',
+    btnEdit: 'Ajustar',
+    sound: 'Som',
     imTitle: '🎉 Mandou bem!',
     imDesc: 'Respeito. O contador de ferrugem zera. O que você mandou? (opcional)',
     imPlaceholder: 'CVE-2026-XXXX / alvo / serviço...',
@@ -105,8 +107,14 @@ function applyLang() {
   setText('recLabel', d.recLabel);
   setText('recDays', d.recDays);
   setText('btnIncidentTxt', d.btnIncident);
-  setText('btnHistoryTxt', d.btnHistory);
-  setText('btnEditTxt', d.btnEdit);
+  // tooltips localizados dos ícones flat
+  const setTitle = (id, txt) => {
+    const n = $(id); if (!n) return;
+    n.title = txt; n.setAttribute('aria-label', txt);
+  };
+  setTitle('btnHistory', d.btnHistory);
+  setTitle('btnEdit', d.btnEdit);
+  setTitle('btnMute', d.sound);
   // modal incidente
   setText('imTitle', d.imTitle);
   setText('imDesc', d.imDesc);
@@ -198,8 +206,14 @@ function winSound() {
   beep(1318.5, 0.44, 0.3, 'triangle', 0.11); // E6 pra fechar
 }
 
+const ICON_SOUND = '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'
+  + '<path d="M4 9.5v5h3.5L12 18V6L7.5 9.5H4z"/><path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18 6.5a8 8 0 0 1 0 11"/></svg>';
+const ICON_MUTED = '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'
+  + '<path d="M4 9.5v5h3.5L12 18V6L7.5 9.5H4z"/><line x1="16" y1="9.5" x2="21" y2="14.5"/><line x1="21" y1="9.5" x2="16" y2="14.5"/></svg>';
+
 function updateMuteBtn() {
-  el.btnMute.textContent = muted ? '🔇' : '🔊';
+  el.btnMute.innerHTML = muted ? ICON_MUTED : ICON_SOUND;
+  el.btnMute.classList.toggle('muted', muted);
 }
 
 /* ---------------- confete ---------------- */
@@ -360,6 +374,21 @@ document.querySelectorAll('.modal-backdrop').forEach((bd) => {
   bd.addEventListener('click', (e) => { if (e.target === bd) bd.hidden = true; });
 });
 
+/* ---------------- responsivo: escala pra caber ---------------- */
+
+function fitToWindow() {
+  const scaler = $('signScaler');
+  const sign = el.sign;
+  if (!scaler || !sign) return;
+  scaler.style.transform = 'translate(-50%, -50%) scale(1)'; // reset pra medir natural
+  const w = sign.offsetWidth, h = sign.offsetHeight;
+  const pad = 24;
+  const availW = window.innerWidth - pad;
+  const availH = window.innerHeight - pad;
+  const scale = Math.min(1.35, availW / w, availH / h);
+  scaler.style.transform = 'translate(-50%, -50%) scale(' + scale.toFixed(4) + ')';
+}
+
 /* ---------------- boot ---------------- */
 
 async function boot() {
@@ -376,10 +405,15 @@ async function boot() {
   wireHistoryModal();
   applyLang();
 
+  // responsivo: escala já no início (evita flash) e a cada resize
+  fitToWindow();
+  window.addEventListener('resize', fitToWindow);
+
   const s = await window.rce.get();
   applyState(s);
   tick();
   setInterval(tick, 1000);
+  fitToWindow(); // reajusta após render final
 }
 
 window.addEventListener('DOMContentLoaded', boot);

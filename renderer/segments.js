@@ -83,10 +83,13 @@ function setDigit(svg, ch) {
   });
 }
 
+const MIN_SLOTS = 3; // casas mínimas; as sobrando viram dígitos "fantasma" (apagados)
+
 // Renderiza um número inteiro em `container` como painel de dígitos.
 // Reaproveita os <svg> existentes; só cria/remove quando muda a qtd.
 function renderNumber(container, value) {
-  const str = String(Math.max(0, Math.floor(value)));
+  let str = String(Math.max(0, Math.floor(value)));
+  while (str.length < MIN_SLOTS) str = ' ' + str; // padding esquerdo = fantasma
   const chars = str.split('');
 
   // Ajusta a quantidade de dígitos no DOM

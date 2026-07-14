@@ -30,9 +30,9 @@ function registerIpc() {
 function createWindow() {
   win = new BrowserWindow({
     width: 940,
-    height: 760,
-    minWidth: 680,
-    minHeight: 560,
+    height: 830,
+    minWidth: 360,
+    minHeight: 340,
     backgroundColor: '#111112',
     title: 'Days Without RCE',
     show: false,
@@ -50,6 +50,10 @@ function createWindow() {
   // Screenshot de dev (gated): RCE_SHOT=/caminho.png electron .
   if (process.env.RCE_SHOT) {
     win.webContents.once('did-finish-load', async () => {
+      if (process.env.RCE_SIZE) {
+        const [w, h] = process.env.RCE_SIZE.split('x').map(Number);
+        if (w && h) win.setContentSize(w, h);
+      }
       if (process.env.RCE_LANG) {
         await win.webContents.executeJavaScript(
           `localStorage.setItem('rce.lang','${process.env.RCE_LANG}')`);
