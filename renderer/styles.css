@@ -277,7 +277,8 @@ body {
   background:
     radial-gradient(120% 90% at 50% 30%, #17110f 0%, #0c0908 55%, #040303 100%);
   border-radius: 14px;
-  padding: 18px 26px 12px;
+  height: 210px;
+  padding: 0;
   margin: 4px 4px 10px;
   box-shadow:
     inset 0 0 0 3px rgba(255,255,255,.92),   /* borda branca fina (Imagem 1) */
@@ -288,21 +289,26 @@ body {
   overflow: hidden;
 }
 
-/* luz ambiente vermelha emanando dos dígitos */
-.led-bloom {
+/* área da matriz de LEDs (campo + dígitos) */
+.matrix {
   position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(46% 60% at 50% 42%, rgba(255,40,25,.28) 0%, rgba(200,20,10,.12) 40%, transparent 72%);
-  mix-blend-mode: screen;
-  animation: bloomPulse 4.2s ease-in-out infinite;
+  left: 12px; right: 12px; top: 12px; bottom: 40px;
+  z-index: 1;
 }
-@keyframes bloomPulse {
-  0%, 100% { opacity: .9; }
-  50% { opacity: .62; }
+.matrix-svg { width: 100%; height: 100%; display: block; }
+
+/* LEDs apagados = campo dot-matrix (fraco) */
+.off-layer circle { fill: #4a130e; opacity: .5; }
+
+/* LEDs acesos = o número, com glow no PRÓPRIO número */
+.on-layer {
+  filter:
+    drop-shadow(0 0 3px rgba(255,120,70,.9))
+    drop-shadow(0 0 8px rgba(255,55,28,.85))
+    drop-shadow(0 0 18px rgba(255,30,14,.55));
+  animation: ledBreath 4.2s ease-in-out infinite;
 }
+.on-layer circle { fill: url(#ledGrad); }
 
 /* brilho de vidro + scanlines sutis + vinheta */
 .panel-glass {
@@ -368,53 +374,6 @@ body {
   46%, 100% { transform: translateY(260px); opacity: 0; }
 }
 
-.digits {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  min-height: 148px;
-}
-
-.digit {
-  height: 150px;
-  width: auto;
-  aspect-ratio: 60 / 104;
-  flex: 0 0 auto;
-}
-
-.led {
-  fill: transparent;   /* apagado = invisível; o campo de pontos vem do .led-grid */
-  transition: fill .12s ease;
-}
-
-.digit g.on .led {
-  fill: url(#ledGrad);
-  filter:
-    drop-shadow(0 0 2px rgba(255,200,140,.95))
-    drop-shadow(0 0 6px rgba(255,70,35,.95))
-    drop-shadow(0 0 14px rgba(255,35,18,.7))
-    drop-shadow(0 0 26px rgba(255,20,10,.4));
-  animation: ledBreath 4.2s ease-in-out infinite;
-}
-
-/* campo de LEDs apagados (dot-matrix) preenchendo o painel */
-.led-grid {
-  position: absolute;
-  inset: 10px;
-  z-index: 0;
-  pointer-events: none;
-  border-radius: 8px;
-  background-image: radial-gradient(circle, rgba(150,32,24,.85) 0 1.5px, transparent 2.1px);
-  background-size: 13px 13px;
-  background-position: center;
-  opacity: .42;
-  -webkit-mask-image: radial-gradient(125% 105% at 50% 44%, #000 58%, transparent 100%);
-  mask-image: radial-gradient(125% 105% at 50% 44%, #000 58%, transparent 100%);
-}
-
 /* cantos de HUD (mira) */
 .hud-c {
   position: absolute;
@@ -442,10 +401,11 @@ body {
   96% { opacity: .88; }
   97.5% { opacity: 1; }
 }
-.digits { animation: flicker 8s infinite steps(1); }
+.matrix-svg { animation: flicker 8s infinite steps(1); }
 
 .live-clock {
-  position: relative;
+  position: absolute;
+  left: 0; right: 0; bottom: 12px;
   z-index: 6;
   display: flex;
   align-items: center;

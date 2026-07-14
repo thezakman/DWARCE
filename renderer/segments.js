@@ -1,30 +1,28 @@
 'use strict';
 
 /* ================================================================ *
- *  Dígitos LED dot-matrix (7 segmentos feitos de "LEDs")           *
- *  Cada segmento é uma fileira de círculos; aceso = vermelho glow. *
+ *  Painel LED dot-matrix REAL                                       *
+ *  Uma única grade uniforme de pontos; os dígitos são os pontos     *
+ *  acesos dessa mesma grade (por isso alinham perfeitamente).       *
  * ================================================================ */
 
-// Coordenadas do dígito (viewBox 60 x 104)
-const D = {
-  xL: 14, xR: 46,      // colunas verticais (esq/dir)
-  yT: 16, yM: 52, yB: 88, // linhas horizontais (topo/meio/base)
-  dots: 5,             // LEDs por segmento
-  r: 3.1,              // raio do LED
+// Segmentos num dígito 7-seg desenhado numa célula de 5 col x 9 linhas
+const DW = 5, DH = 9, GAP = 2;
+
+function hcells(c0, c1, r) { const o = []; for (let c = c0; c <= c1; c++) o.push([c, r]); return o; }
+function vcells(c, r0, r1) { const o = []; for (let r = r0; r <= r1; r++) o.push([c, r]); return o; }
+
+const SEG_CELLS = {
+  a: hcells(0, 4, 0), // topo
+  g: hcells(0, 4, 4), // meio
+  d: hcells(0, 4, 8), // base
+  f: vcells(0, 0, 4), // sup-esq
+  b: vcells(4, 0, 4), // sup-dir
+  e: vcells(0, 4, 8), // inf-esq
+  c: vcells(4, 4, 8), // inf-dir
 };
 
-// Endpoints de cada segmento: [x1,y1,x2,y2]
-const SEG_GEOM = {
-  a: [D.xL, D.yT, D.xR, D.yT], // topo
-  b: [D.xR, D.yT, D.xR, D.yM], // sup-dir
-  c: [D.xR, D.yM, D.xR, D.yB], // inf-dir
-  d: [D.xL, D.yB, D.xR, D.yB], // base
-  e: [D.xL, D.yM, D.xL, D.yB], // inf-esq
-  f: [D.xL, D.yT, D.xL, D.yM], // sup-esq
-  g: [D.xL, D.yM, D.xR, D.yM], // meio
-};
-
-// Quais segmentos acendem para cada dígito 0–9
+// Quais segmentos acendem para cada caractere
 const SEG_MAP = {
   '0': ['a', 'b', 'c', 'd', 'e', 'f'],
   '1': ['b', 'c'],
@@ -40,67 +38,51 @@ const SEG_MAP = {
   ' ': [],
 };
 
-const SVGNS = 'http://www.w3.org/2000/svg';
+// Renderiza o painel inteiro (campo + dígitos) dentro de `container`.
+// Recalcula a grade a partir do tamanho em px do container (crisp em qualquer escala).
+function renderDisplay(container, value) {
+  const w = container.clientWidth, h = container.clientHeight;
+  if (!w || !h) return;
 
-function lineDots(x1, y1, x2, y2, n) {
-  const pts = [];
-  for (let i = 0; i < n; i++) {
-    const t = n === 1 ? 0.5 : i / (n - 1);
-    pts.push([x1 + (x2 - x1) * t, y1 + (y2 - y1) * t]);
-  }
-  return pts;
-}
+  // pitch (espaçamento) derivado da altura pra os dígitos ocuparem ~80% da altura
+  const pitch = Math.max(9, h * 0.82 / DH);
+  const cols = Math.floor(w / pitch);
+  const rows = Math.floor(h / pitch);
+  const offX = (w - cols * pitch) / 2 + pitch / 2;
+  const offY = (h - rows * pitch) / 2 + pitch / 2;
 
-// Cria um elemento <svg> de um dígito, com todos os LEDs desenhados.
-function createDigit() {
-  const svg = document.createElementNS(SVGNS, 'svg');
-  svg.setAttribute('viewBox', '0 0 60 104');
-  svg.setAttribute('class', 'digit');
-  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  const chars = String(Math.max(0, Math.floor(value))).split('');
+  const n = chars.length;
+  const totalCols = n * DW + (n - 1) * GAP;
+  const startCol = Math.round((cols - totalCols) / 2);
+  const startRow = Math.max(0, Math.round((rows - DH) / 2));
 
-  for (const seg of Object.keys(SEG_GEOM)) {
-    const [x1, y1, x2, y2] = SEG_GEOM[seg];
-    const g = document.createElementNS(SVGNS, 'g');
-    g.setAttribute('data-seg', seg);
-    for (const [cx, cy] of lineDots(x1, y1, x2, y2, D.dots)) {
-      const c = document.createElementNS(SVGNS, 'circle');
-      c.setAttribute('cx', cx.toFixed(2));
-      c.setAttribute('cy', cy.toFixed(2));
-      c.setAttribute('r', D.r);
-      c.setAttribute('class', 'led');
-      g.appendChild(c);
-    }
-    svg.appendChild(g);
-  }
-  return svg;
-}
-
-// Acende/apaga os segmentos de um dígito para exibir `ch`.
-function setDigit(svg, ch) {
-  const on = new Set(SEG_MAP[ch] || []);
-  svg.querySelectorAll('g[data-seg]').forEach((g) => {
-    g.classList.toggle('on', on.has(g.getAttribute('data-seg')));
+  // conjunto de células acesas
+  const lit = new Set();
+  chars.forEach((ch, i) => {
+    const base = startCol + i * (DW + GAP);
+    (SEG_MAP[ch] || []).forEach((seg) => {
+      SEG_CELLS[seg].forEach(([c, r]) => lit.add((base + c) + ',' + (startRow + r)));
+    });
   });
-}
 
-const MIN_SLOTS = 1; // o "campo" de pontos apagados vem do grid de fundo do painel
-
-// Renderiza um número inteiro em `container` como painel de dígitos.
-// Reaproveita os <svg> existentes; só cria/remove quando muda a qtd.
-function renderNumber(container, value) {
-  let str = String(Math.max(0, Math.floor(value)));
-  while (str.length < MIN_SLOTS) str = ' ' + str; // padding esquerdo = fantasma
-  const chars = str.split('');
-
-  // Ajusta a quantidade de dígitos no DOM
-  while (container.children.length < chars.length) {
-    container.appendChild(createDigit());
-  }
-  while (container.children.length > chars.length) {
-    container.removeChild(container.lastChild);
+  const rOff = (pitch * 0.15).toFixed(2);
+  const rOn = (pitch * 0.34).toFixed(2);
+  let off = '', on = '';
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const cx = (offX + c * pitch).toFixed(2);
+      const cy = (offY + r * pitch).toFixed(2);
+      if (lit.has(c + ',' + r)) on += `<circle cx="${cx}" cy="${cy}" r="${rOn}"/>`;
+      else off += `<circle cx="${cx}" cy="${cy}" r="${rOff}"/>`;
+    }
   }
 
-  chars.forEach((ch, i) => setDigit(container.children[i], ch));
+  container.innerHTML =
+    `<svg class="matrix-svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" preserveAspectRatio="none">`
+    + `<g class="off-layer">${off}</g>`
+    + `<g class="on-layer">${on}</g>`
+    + `</svg>`;
 }
 
-window.LED = { createDigit, setDigit, renderNumber };
+window.LED = { renderDisplay };

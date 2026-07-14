@@ -7,7 +7,7 @@ const $ = (id) => document.getElementById(id);
 const el = {
   sign: $('sign'),
   panel: $('panel'),
-  digits: $('digits'),
+  matrix: $('matrix'),
   liveClock: $('liveClock'),
   recordVal: $('recordVal'),
   tagline: $('tagline'),
@@ -167,11 +167,21 @@ function applyState(s) {
   el.recordVal.textContent = s.recordDays;
 }
 
+// Re-renderiza a matriz só quando o nº de dias OU a largura do painel muda
+let lastDays = -1, lastMatrixW = -1;
+function renderMatrix() {
+  const w = el.matrix.clientWidth;
+  if (state.days === lastDays && w === lastMatrixW) return;
+  lastDays = state.days;
+  lastMatrixW = w;
+  window.LED.renderDisplay(el.matrix, state.days);
+}
+
 // Atualiza os números na tela (chamado a cada segundo)
 function tick() {
   const days = daysFrom(state.incidentDate);
   state.days = days;
-  window.LED.renderNumber(el.digits, days);
+  renderMatrix();
   el.liveClock.textContent = liveClockText(state.incidentDate);
   el.tagline.innerHTML = t().tagline(days);
   // veredito de ferrugem
@@ -391,6 +401,7 @@ function fitToWindow() {
   const availH = window.innerHeight - pad;
   const scale = Math.min(1.35, availW / w, availH / h);
   scaler.style.transform = 'translate(-50%, -50%) scale(' + scale.toFixed(4) + ')';
+  renderMatrix(); // largura do painel pode ter mudado
 }
 
 /* ---------------- boot ---------------- */
